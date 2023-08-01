@@ -11,7 +11,7 @@
 /**
  * Plugin Name: Advanced Plugin Dependencies
  * Plugin URI:  https://wordpress.org/plugins/advanced-plugin-dependencies
- * Description: Add plugin install dependencies tab and information about dependencies.
+ * Description:  Add plugin install dependencies tab, support for non dot org plugins, and information about dependencies.
  * Author: Andy Fragen, Colin Stewart, Paul Biron
  * Version: 0.1.0
  * License: MIT

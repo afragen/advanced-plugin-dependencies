@@ -1,7 +1,7 @@
 # Advanced Plugin Dependencies
 
 Contributors: afragen, costdev, pbiron
-Description: Add plugin install dependencies tab and information about dependencies.
+Description: Add plugin install dependencies tab, support for non dot org plugins, and information about dependencies.
 License: MIT
 Network: true
 Requires at least: 6.0
@@ -11,7 +11,7 @@ Stable tag: 1.14.3
 
 ## Description
 
-Adds a Dependencies tab in the plugin install page. If a requiring plugin does not have all its dependencies installed and active, it will not activate. An add-on the the Plugin Dependencies feature.
+Adds a Dependencies tab in the plugin install page. If a requiring plugin does not have all its dependencies installed and active, it will not activate. An add-on the the Plugin Dependencies feature. Adds support for non dot org plugins.
 
 * Plugins not in dot org may use the format `<slug>|<URI>` in the **Requires Plugins** header. `URI` should return a JSON compatible with the `plugins_api()` response or be a JSON file at the plugin root, `<slug>|<slug>.json`.
 * For a plugin in dot org, the JSON response value of `download_link` must be empty.
