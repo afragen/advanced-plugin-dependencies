@@ -44,7 +44,6 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 			add_filter( 'plugin_install_description', array( $this, 'plugin_install_description_installed' ), 10, 2 );
 			add_filter( 'plugin_install_description', array( $this, 'set_plugin_card_data' ), 10, 1 );
 
-			// TODO: doesn't seem to be working.
 			$this->remove_hook( 'admin_notices', array( new WP_Plugin_Dependencies(), 'admin_notices' ) );
 			$this->remove_hook( 'network_admin_notices', array( new WP_Plugin_Dependencies(), 'admin_notices' ) );
 
@@ -509,14 +508,7 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 		$to   = trailingslashit( $result['local_destination'] ) . $hook_extra['slug'];
 
 		if ( trailingslashit( strtolower( $from ) ) !== trailingslashit( strtolower( $to ) ) ) {
-			// TODO: remove function_exists for commit.
-			if ( function_exists( 'move_dir' ) ) {
-				$true = move_dir( $from, $to, true );
-			} elseif ( ! rename( $from, $to ) ) {
-				$wp_filesystem->mkdir( $to );
-				$true = copy_dir( $from, $to, array( basename( $to ) ) );
-				$wp_filesystem->delete( $from, true );
-			}
+			$true = move_dir( $from, $to, true );
 		}
 
 		return $true;
