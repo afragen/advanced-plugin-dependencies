@@ -1,0 +1,37 @@
+{
+  "name": "wordpress/wp-plugin-dependencies",
+  "description": "Parses 'Requires Plugins' header, add plugin install dependencies tab, and information about dependencies.",
+  "type": "wordpress-plugin",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Andy Fragen",
+      "email": "andy@thefragens.com",
+      "homepage": "https://thefragens.com",
+      "role": "Developer"
+    }
+  ],
+  "support": {
+    "issues": "https://github.com/WordPress/wp-plugin-dependencies/issues",
+    "source": "https://github.com/WordPress/wp-plugin-dependencies"
+  },
+  "prefer-stable": true,
+  "require": {
+    "php": ">=5.6"
+  },
+  "require-dev": {
+    "dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
+    "squizlabs/php_codesniffer": "3.6.0",
+    "wp-coding-standards/wpcs": "~2.3.0"
+  },
+  "config": {
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true
+    }
+  },
+  "scripts": {
+    "wpcs": [
+      "vendor/bin/phpcbf .; vendor/bin/phpcs ."
+    ]
+  }
+}
