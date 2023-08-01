@@ -1,4 +1,4 @@
-# WordPress Feature Project: Plugin Dependencies
+# Advanced Plugin Dependencies
 
 * Contributors: afragen, costdev, pbiron
 * Description: Parses 'Requires Plugins' header, add plugin install dependencies tab, and information about dependencies.
