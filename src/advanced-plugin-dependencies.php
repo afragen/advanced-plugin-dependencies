@@ -45,8 +45,8 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 			add_filter( 'plugin_install_description', array( $this, 'set_plugin_card_data' ), 10, 1 );
 
 			// TODO: doesn't seem to be working.
-			$this->remove_hook_kludge( 'admin_notices', array( new WP_Plugin_Dependencies(), 'admin_notices' ) );
-			$this->remove_hook_kludge( 'network_admin_notices', array( new WP_Plugin_Dependencies(), 'admin_notices' ) );
+			$this->remove_hook( 'admin_notices', array( new WP_Plugin_Dependencies(), 'admin_notices' ) );
+			$this->remove_hook( 'network_admin_notices', array( new WP_Plugin_Dependencies(), 'admin_notices' ) );
 
 			add_action( 'admin_init', array( $this, 'modify_plugin_row' ), 15 );
 			add_action( 'admin_notices', array( $this, 'admin_notices' ) );
@@ -127,7 +127,7 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 	 * @return void
 	 */
 	public function modify_dependency_plugin_row( $plugin_file ) {
-		$this->remove_hook_kludge( 'after_plugin_row_' . $plugin_file, array( new WP_Plugin_Dependencies(), 'modify_plugin_row_elements' ) );
+		$this->remove_hook( 'after_plugin_row_' . $plugin_file, array( new WP_Plugin_Dependencies(), 'modify_plugin_row_elements' ) );
 		add_action( 'after_plugin_row_' . $plugin_file, array( $this, 'modify_plugin_row_elements' ), 10, 2 );
 	}
 
@@ -530,18 +530,20 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 	 *                                         This method can be called unconditionally to speculatively remove
 	 *                                         a callback that may or may not exist.
 	 * @param int                   $priority  The exact priority used when adding the original filter callback.
+	 *
 	 * @return void
 	 */
-	private function remove_hook_kludge( $hook_name, $callback, $priority = 10 ) {
+	private function remove_hook( $hook_name, $callback, $priority = 10 ) {
 		global $wp_filter;
 
 		if ( isset( $wp_filter[ $hook_name ] ) ) {
 			$hooks = $wp_filter[ $hook_name ];
 			if ( isset( $wp_filter[ $hook_name ]->callbacks[ $priority ] ) ) {
 				$hooks = $wp_filter[ $hook_name ]->callbacks[ $priority ];
-				foreach ( array_keys( $hooks ) as $idx ) {
-					if ( str_contains( $idx, $callback[1] ) && str_ends_with( $idx, $callback[1] ) ) {
-						unset( $wp_filter[ $hook_name ]->callbacks[ $priority ][ $idx ] );
+				foreach ( $hooks  as $hook ) {
+					if ( is_array( $hook['function'] ) && $hook['function'][0] instanceof $callback[0] ) {
+						$main_instance = $hook['function'][0];
+						remove_filter( $hook_name, array( $main_instance, $callback[1], $priority ) );
 					}
 				}
 			}
