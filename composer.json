@@ -30,6 +30,9 @@
     }
   },
   "scripts": {
+    "make-pot": [
+      "wp i18n make-pot . languages/advanced-plugin-dependencies.pot"
+    ],
     "wpcs": [
       "vendor/bin/phpcbf .; vendor/bin/phpcs ."
     ]

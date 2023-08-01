@@ -154,7 +154,7 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 		$sources            = $this->get_dependency_sources( $plugin_data );
 		$requires_filepaths = $this->get_requires_paths( $plugin_data );
 		print '<script>';
-		print 'jQuery("tr[data-plugin=\'' . esc_attr( $plugin_file ) . '\'] .plugin-version-author-uri").append("<br><br><strong>' . esc_html__( 'Required by:' ) . '</strong> ' . esc_html( $sources ) . '");';
+		print 'jQuery("tr[data-plugin=\'' . esc_attr( $plugin_file ) . '\'] .plugin-version-author-uri").append("<br><br><strong>' . esc_html__( 'Required by:', 'advanced-plugin-dependencies' ) . '</strong> ' . esc_html( $sources ) . '");';
 		foreach ( $requires_filepaths as $filepath ) {
 			if ( is_plugin_active( $filepath ) ) {
 				print 'jQuery(".active[data-plugin=\'' . esc_attr( $plugin_file ) . '\'] .check-column input").remove();';
@@ -186,7 +186,7 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 		if ( in_array( $plugin['slug'], array_keys( $this->plugin_data ), true ) ) {
 			$dependents = $this->get_dependency_sources( $plugin );
 			$dependents = explode( ', ', $dependents );
-			$required[] = '<strong>' . __( 'Required by:' ) . '</strong>';
+			$required[] = '<strong>' . __( 'Required by:', 'advanced-plugin-dependencies' ) . '</strong>';
 			$required   = array_merge( $required, $dependents );
 		}
 
@@ -252,7 +252,7 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 				printf(
 					'<div class="notice-error notice is-dismissible"><p>'
 					/* translators: 1: plugin names, 2: link to Dependencies install page */
-					. esc_html__( '%1$s plugin(s) have been deactivated. There are uninstalled or inactive dependencies. Go to the %2$s install page.' )
+					. esc_html__( '%1$s plugin(s) have been deactivated. There are uninstalled or inactive dependencies. Go to the %2$s install page.', 'advanced-plugin-dependencies' )
 					. '</p></div>',
 					'<strong>' . esc_html( $deactivated_plugins ) . '</strong>',
 					wp_kses_post( $this->get_dependency_link( true ) )
@@ -263,7 +263,7 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 				$intersect       = array_intersect( $this->slugs, $installed_slugs );
 				asort( $intersect );
 				if ( $intersect !== $this->slugs ) {
-					$message_html = __( 'There are additional plugin dependencies that must be installed.' );
+					$message_html = __( 'There are additional plugin dependencies that must be installed.', 'advanced-plugin-dependencies' );
 
 					// Display link (if not already on Dependencies install page).
 					// phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -271,7 +271,7 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 					if ( 'plugin-install.php' !== $pagenow || 'dependencies' !== $tab ) {
 						$message_html .= ' ' . sprintf(
 							/* translators: 1: link to Dependencies install page */
-							__( 'Go to the %s install page.' ),
+							__( 'Go to the %s install page.', 'advanced-plugin-dependencies' ),
 							wp_kses_post( $this->get_dependency_link( true ) ),
 							'</a>'
 						);
@@ -287,8 +287,8 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 			$circular_dependencies = $this->get_circular_dependencies();
 			if ( ! empty( $circular_dependencies ) && count( $circular_dependencies ) > 1 ) {
 				/* translators: circular dependencies names */
-				$messages  = sprintf( __( 'You have circular dependencies with the following plugins: %s' ), implode( ', ', $circular_dependencies['names'] ) );
-				$messages .= '<br>' . __( 'Please contact the plugin developers and make them aware.' );
+				$messages  = sprintf( __( 'You have circular dependencies with the following plugins: %s', 'advanced-plugin-dependencies' ), implode( ', ', $circular_dependencies['names'] ) );
+				$messages .= '<br>' . __( 'Please contact the plugin developers and make them aware.', 'advanced-plugin-dependencies' );
 				printf(
 					'<div class="notice-warning notice is-dismissible"><p>%s</p></div>',
 					wp_kses_post( $messages )
@@ -304,9 +304,9 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 	 * @return string
 	 */
 	private function get_dependency_link( $notice = false ) {
-		$link_text = $notice ? __( 'Dependencies' ) : __( 'Manage Dependencies' );
+		$link_text = $notice ? __( 'Dependencies', 'advanced-plugin-dependencies' ) : __( 'Manage Dependencies', 'advanced-plugin-dependencies' );
 		$link      = sprintf(
-			'<a href=' . esc_url( network_admin_url( 'plugin-install.php?tab=dependencies' ) ) . ' aria-label="' . __( 'Go to Dependencies tab of Add Plugins page.' ) . '">%s</a>',
+			'<a href=' . esc_url( network_admin_url( 'plugin-install.php?tab=dependencies' ) ) . ' aria-label="' . __( 'Go to Dependencies tab of Add Plugins page.', 'advanced-plugin-dependencies' ) . '">%s</a>',
 			$link_text
 		);
 
@@ -338,7 +338,7 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 			$dependencies      = $this->get_dependency_filepaths();
 			$file              = $dependencies[ $slug ];
 			$args              = $file ? $this->plugins[ $file ] : $args;
-			$short_description = __( 'You will need to manually install this dependency. Please contact the plugin\'s developer and ask them to add plugin dependencies support and for information on how to install the this dependency.' );
+			$short_description = __( 'You will need to manually install this dependency. Please contact the plugin\'s developer and ask them to add plugin dependencies support and for information on how to install the this dependency.', 'advanced-plugin-dependencies' );
 			$response          = array(
 				'name'              => $args['Name'],
 				'slug'              => $slug,
@@ -350,7 +350,7 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 				'requires_php'      => $args['RequiresPHP'],
 				'sections'          => array(
 					'description'  => '<p>' . $args['Description'] . '</p>' . $short_description,
-					'installation' => __( 'Ask the plugin developer where to download and install this plugin dependency.' ),
+					'installation' => __( 'Ask the plugin developer where to download and install this plugin dependency.', 'advanced-plugin-dependencies' ),
 				),
 				'short_description' => '<p>' . $args['Description'] . '</p>' . $short_description,
 				'download_link'     => '',

@@ -55,7 +55,7 @@ class Init {
 				// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				$tab = isset( $_GET['tab'] ) ? sanitize_title_with_dashes( wp_unslash( $_GET['tab'] ) ) : '';
 				if ( 'dependencies' === $tab ) {
-					echo '<p>' . esc_html__( 'These suggestions are based on dependencies required by installed plugins.' ) . '</p>';
+					echo '<p>' . esc_html__( 'These suggestions are based on dependencies required by installed plugins.', 'advanced-plugin-dependencies' ) . '</p>';
 				}
 			}
 		);
