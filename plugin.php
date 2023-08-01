@@ -16,7 +16,7 @@
  * Version: 0.1.0
  * License: MIT
  * Network: true
- * Requires at least: 6.2
+ * Requires at least: 6.4
  * Requires PHP: 7.0
  * GitHub Plugin URI: https://github.com/WordPress/advanced-plugin-dependencies
  * Primary Branch: main
