@@ -539,7 +539,7 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 			$hooks = $wp_filter[ $hook_name ];
 			if ( isset( $wp_filter[ $hook_name ]->callbacks[ $priority ] ) ) {
 				$hooks = $wp_filter[ $hook_name ]->callbacks[ $priority ];
-				foreach ( array_keys( (array) $hooks ) as $idx ) {
+				foreach ( array_keys( $hooks ) as $idx ) {
 					if ( str_contains( $idx, $callback[1] ) && str_ends_with( $idx, $callback[1] ) ) {
 						unset( $wp_filter[ $hook_name ]->callbacks[ $priority ][ $idx ] );
 					}
