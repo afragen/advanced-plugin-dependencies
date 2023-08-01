@@ -298,72 +298,6 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 		}
 	}
 
-
-	/**
-	 * Get filepath of installed dependencies.
-	 * If dependency is not installed filepath defaults to false.
-	 *
-	 * @return array
-	 */
-	private function xget_dependency_filepaths() {
-		$dependency_filepaths = array();
-
-		if ( empty( $this->plugins ) ) {
-			return $dependency_filepaths;
-		}
-
-		// Cache the plugin directory names.
-		if ( empty( $this->plugin_dirnames )
-			|| ( ! empty( $this->plugin_dirnames ) && $this->plugin_dirnames_cache !== $this->plugins )
-		) {
-			$this->plugin_dirnames       = array();
-			$this->plugin_dirnames_cache = $this->plugins;
-
-			foreach ( array_keys( $this->plugins ) as $plugin ) {
-				$dirname = dirname( $plugin );
-
-				if ( '.' !== $dirname ) {
-					$this->plugin_dirnames[ $dirname ] = $plugin;
-				}
-			}
-		}
-
-		foreach ( $this->slugs as $slug ) {
-			if ( isset( $this->plugin_dirnames[ $slug ] ) ) {
-				$dependency_filepaths[ $slug ] = $this->plugin_dirnames[ $slug ];
-				continue;
-			}
-
-			$dependency_filepaths[ $slug ] = false;
-		}
-
-		return $dependency_filepaths;
-	}
-
-	/**
-	 * Get formatted string of dependent plugins.
-	 *
-	 * @param array $plugin_data Array of plugin data.
-	 * @return string
-	 */
-	private function xget_dependency_sources( $plugin_data ) {
-		$sources = array();
-		foreach ( $this->plugins as $plugin ) {
-			if ( ! empty( $plugin['RequiresPlugins'] ) ) {
-				// Default TextDomain derived from plugin directory name, should be slug equivalent.
-				$plugin_data['slug'] = $plugin_data['slug'] ?? $plugin_data['TextDomain'];
-				if ( in_array( $plugin_data['slug'], $plugin['RequiresPlugins'], true ) ) {
-					$sources[] = $plugin['Name'];
-				}
-			}
-		}
-		$sources = array_unique( $sources );
-		sort( $sources );
-		$sources = implode( ', ', $sources );
-
-		return $sources;
-	}
-
 	/**
 	 * Get Dependencies link.
 	 *
@@ -378,29 +312,6 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 		);
 
 		return $link;
-	}
-	/**
-	 * Get array of plugin requirement filepaths.
-	 *
-	 * @param array $plugin_data Array of plugin data.
-	 * @return array
-	 */
-	private function xget_requires_paths( $plugin_data ) {
-		$paths = array();
-		foreach ( $this->plugins as $filepath => $plugin ) {
-			if ( ! empty( $plugin['RequiresPlugins'] ) ) {
-				// Default TextDomain derived from plugin directory name, should be slug equivalent.
-				$plugin_data['slug'] = $plugin_data['slug'] ?? $plugin_data['TextDomain'];
-				if ( in_array( $plugin_data['slug'], $plugin['RequiresPlugins'], true ) ) {
-					$paths[] = $filepath;
-				}
-			}
-		}
-		$paths = array_filter( $paths );
-		$paths = array_unique( $paths );
-		sort( $paths );
-
-		return $paths;
 	}
 
 	/**
@@ -457,36 +368,6 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 		}
 
 		return $response;
-	}
-
-	/**
-	 * Get names of required plugins.
-	 *
-	 * @param string $data Plugin file.
-	 * @return string
-	 */
-	private function xget_requires_plugins_names( $data ) {
-		$this->plugin_data = get_site_transient( 'wp_plugin_dependencies_plugin_data' );
-
-		// Exit if no plugin data found.
-		if ( empty( $this->plugin_data ) ) {
-			return;
-		}
-
-		if ( str_contains( $data, '.php' ) ) {
-			$requires = $this->plugins[ $data ]['RequiresPlugins'];
-			sort( $requires );
-		}
-		foreach ( $requires as $require ) {
-			if ( isset( $this->plugin_data[ $require ] ) ) {
-				$names[] = $this->plugin_data[ $require ]['name'];
-			}
-		}
-		if ( ! empty( $names ) ) {
-			$names = implode( ', ', $names );
-		}
-
-		return $names ?? '';
 	}
 
 	/**
