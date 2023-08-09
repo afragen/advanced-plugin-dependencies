@@ -96,6 +96,11 @@ class Init {
 add_action(
 	'plugins_loaded',
 	function() {
+		if ( ! class_exists( 'WP_Plugin_Dependencies' ) ) {
+			deactivate_plugins( __FILE__ );
+			return;
+		}
+
 		new Init();
 	}
 );
