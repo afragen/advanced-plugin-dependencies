@@ -203,8 +203,7 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 	}
 
 	/**
-	 * Exchange 'Activate' link for 'Cannot Activate' text if dependencies not met.
-	 * Add 'Dependencies' link to install plugin tab.
+	 * Add 'Dependencies' link to install plugin tab in plugin row action links.
 	 *
 	 * @param array  $actions     Plugin action links.
 	 * @param string $plugin_file File name.
@@ -215,7 +214,7 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 			return $actions;
 		}
 
-		if ( str_contains( $actions['activate'], 'Cannot Activate' ) ) {
+		if ( str_contains( $actions['activate'], 'Activate' ) ) {
 			$actions['dependencies'] = $this->get_dependency_link();
 		}
 
