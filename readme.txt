@@ -4,10 +4,10 @@ Contributors: afragen, costdev, pbiron
 Description: Add plugin install dependencies tab, support for non dot org plugins, and information about dependencies.
 License: MIT
 Network: true
-Requires at least: 6.0
+Requires at least: 6.3
 Requires PHP: 7.0
-Tested up to: 6.3
-Stable tag: 1.14.3
+Tested up to: 6.4
+Stable tag: x.x.x
 
 ## Description
 
