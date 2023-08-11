@@ -4,7 +4,7 @@
  *
  * @package WordPress
  * @subpackage Administration
- * @since 6.x.0
+ * @since 6.4.0
  */
 
 /**
@@ -139,29 +139,6 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 	public function modify_requires_plugin_row( $plugin_file ) {
 		add_filter( 'plugin_action_links_' . $plugin_file, array( $this, 'add_manage_dependencies_action_link' ), 10, 2 );
 		add_filter( 'network_admin_plugin_action_links_' . $plugin_file, array( $this, 'add_manage_dependencies_action_link' ), 10, 2 );
-	}
-
-	/**
-	 * Modify the plugin row elements.
-	 * Removes plugin row checkbox.
-	 * Adds 'Required by: ...' information.
-	 *
-	 * @param string $plugin_file Plugin file.
-	 * @param array  $plugin_data Array of plugin data.
-	 * @return void
-	 */
-	public function xmodify_plugin_row_elements( $plugin_file, $plugin_data ) {
-		$sources            = $this->get_dependency_sources( $plugin_data );
-		$requires_filepaths = $this->get_requires_paths( $plugin_data );
-		print '<script>';
-		print 'jQuery("tr[data-plugin=\'' . esc_attr( $plugin_file ) . '\'] .plugin-version-author-uri").append("<br><br><strong>' . esc_html__( 'Required by:', 'advanced-plugin-dependencies' ) . '</strong> ' . esc_html( $sources ) . '");';
-		foreach ( $requires_filepaths as $filepath ) {
-			if ( is_plugin_active( $filepath ) ) {
-				print 'jQuery(".active[data-plugin=\'' . esc_attr( $plugin_file ) . '\'] .check-column input").remove();';
-				break;
-			}
-		}
-		print '</script>';
 	}
 
 	/**
@@ -380,12 +357,10 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 			return $slug;
 		}
 
-		$original_slug = $slug;
-
+		$original_slug           = $slug;
 		list( $slug, $endpoint ) = explode( '|', $slug );
-
-		$slug     = trim( $slug );
-		$endpoint = trim( $endpoint );
+		$slug                    = trim( $slug );
+		$endpoint                = trim( $endpoint );
 
 		if ( '' === $slug || '' === $endpoint ) {
 			return $original_slug;
@@ -488,8 +463,6 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 	 * For correct renaming of downloaded plugin directory,
 	 * some downloads may not be formatted correctly.
 	 *
-	 * @global WP_Filesystem_Base $wp_filesystem WordPress filesystem subclass.
-	 *
 	 * @param bool  $true       Default is true.
 	 * @param array $hook_extra Array of data from hook.
 	 * @param array $result     Array of data for installation.
@@ -497,8 +470,6 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 	 * @return bool
 	 */
 	public function fix_plugin_containing_directory( $true, $hook_extra, $result ) {
-		global $wp_filesystem;
-
 		if ( ! isset( $hook_extra['slug'] ) ) {
 			return $true;
 		}
