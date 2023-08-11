@@ -43,6 +43,7 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 			add_filter( 'wp_plugin_dependencies_slug', array( $this, 'split_slug' ), 10, 1 );
 			add_filter( 'plugin_install_description', array( $this, 'plugin_install_description_installed' ), 10, 2 );
 			add_filter( 'plugin_install_description', array( $this, 'set_plugin_card_data' ), 10, 1 );
+			add_filter( 'plugin_install_action_links', array( $this, 'disable_activate_button' ), 10, 2 );
 
 			$this->remove_hook( 'admin_notices', array( new WP_Plugin_Dependencies(), 'admin_notices' ) );
 			$this->remove_hook( 'network_admin_notices', array( new WP_Plugin_Dependencies(), 'admin_notices' ) );
@@ -139,6 +140,38 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 	public function modify_requires_plugin_row( $plugin_file ) {
 		add_filter( 'plugin_action_links_' . $plugin_file, array( $this, 'add_manage_dependencies_action_link' ), 10, 2 );
 		add_filter( 'network_admin_plugin_action_links_' . $plugin_file, array( $this, 'add_manage_dependencies_action_link' ), 10, 2 );
+	}
+
+	/**
+	 * Disable 'Activate' for dependencies with unmet dependencies.
+	 *
+	 * @global $pagenow Current page.
+	 *
+	 * @param array $action_links Array of plugin install action links.
+	 * @param array $plugin       Array of plugin data.
+	 * @return array
+	 */
+	public function disable_activate_button( $action_links, $plugin ) {
+		global $pagenow;
+
+		if ( 'plugin-install.php' !== $pagenow
+			|| ! str_contains( $action_links[0], 'activate-now' )
+		) {
+			return $action_links;
+		}
+
+		$requires     = $this->requires_plugins[ $this->plugin_dirnames[ $plugin['slug'] ] ]['RequiresPlugins'];
+		$requires_arr = explode( ',', $requires );
+		foreach ( $requires_arr as $require ) {
+			$inactive_dependency = is_plugin_inactive( $this->plugin_dirnames[ $require ] );
+			if ( $inactive_dependency ) {
+				$action_links[0] .= '<span class="screen-reader-text">' . __( 'Cannot activate due to unmet dependencies' ) . '</span>';
+				$action_links[0]  = str_replace( 'activate-now', 'activate-now button-disabled', $action_links[0] );
+				break;
+			}
+		}
+
+		return $action_links;
 	}
 
 	/**
