@@ -165,7 +165,7 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 		foreach ( $requires_arr as $require ) {
 			$inactive_dependency = is_plugin_inactive( $this->plugin_dirnames[ $require ] );
 			if ( $inactive_dependency ) {
-				$action_links[0] .= '<span class="screen-reader-text">' . __( 'Cannot activate due to unmet dependencies' ) . '</span>';
+				$action_links[0] .= '<span class="screen-reader-text">' . __( 'Cannot activate due to unmet dependency', 'advanced-plugin-dependencies' ) . '</span>';
 				$action_links[0]  = str_replace( 'activate-now', 'activate-now button-disabled', $action_links[0] );
 				break;
 			}
