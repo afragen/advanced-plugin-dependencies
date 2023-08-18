@@ -23,6 +23,8 @@ Adds a Dependencies tab in the plugin install page. If a requiring plugin does n
 
 There are several single file plugins that may be used for testing in `test-plugins/`.
 
+## Changelog
+
 ## Pull Requests
 
 PRs should be made against the `develop` branch.

@@ -160,8 +160,11 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 			return $action_links;
 		}
 
-		$requires     = $this->requires_plugins[ $this->plugin_dirnames[ $plugin['slug'] ] ]['RequiresPlugins'];
+		$requires     = isset( $this->requires_plugins[ $this->plugin_dirnames[ $plugin['slug'] ] ]['RequiresPlugins'] )
+			? $this->requires_plugins[ $this->plugin_dirnames[ $plugin['slug'] ] ]['RequiresPlugins']
+			: '';
 		$requires_arr = explode( ',', $requires );
+		$requires_arr = array_filter( $requires_arr );
 		foreach ( $requires_arr as $require ) {
 			$inactive_dependency = is_plugin_inactive( $this->plugin_dirnames[ $require ] );
 			if ( $inactive_dependency ) {
