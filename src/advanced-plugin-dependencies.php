@@ -53,8 +53,8 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 			add_action( 'network_admin_notices', array( $this, 'admin_notices' ) );
 
 			$required_headers = $this->parse_plugin_headers();
-			$this->slugs      = $this->sanitize_required_headers( $required_headers );
-			$this->get_dot_org_data();
+			self::$slugs      = $this->sanitize_required_headers( $required_headers );
+			$this->get_plugin_api_data();
 		}
 	}
 
@@ -127,8 +127,8 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 	 * @return void
 	 */
 	public function modify_dependency_plugin_row( $plugin_file ) {
-		$this->remove_hook( 'after_plugin_row_' . $plugin_file, array( new WP_Plugin_Dependencies(), 'modify_plugin_row_elements' ) );
-		add_action( 'after_plugin_row_' . $plugin_file, array( $this, 'modify_plugin_row_elements' ), 10, 2 );
+		$this->remove_hook( 'post_plugin_row_meta', array( new WP_Plugin_Dependencies(), 'modify_plugin_row_elements' ) );
+		add_action( 'post_plugin_row_meta', array( $this, 'modify_plugin_row_elements' ), 10, 3 );
 	}
 
 	/**
@@ -272,9 +272,9 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 			} else {
 				// More dependencies to install.
 				$installed_slugs = array_map( 'dirname', array_keys( $this->plugins ) );
-				$intersect       = array_intersect( $this->slugs, $installed_slugs );
+				$intersect       = array_intersect( self::$slugs, $installed_slugs );
 				asort( $intersect );
-				if ( $intersect !== $this->slugs ) {
+				if ( $intersect !== self::$slugs ) {
 					$message_html = __( 'There are additional plugin dependencies that must be installed.', 'advanced-plugin-dependencies' );
 
 					// Display link (if not already on Dependencies install page).
