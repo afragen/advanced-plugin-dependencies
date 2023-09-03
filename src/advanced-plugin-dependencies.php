@@ -138,6 +138,8 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 	 * @return void
 	 */
 	public function modify_requires_plugin_row( $plugin_file ) {
+		$this->remove_hook( 'post_plugin_row_meta', array( new WP_Plugin_Dependencies(), 'modify_plugin_row_elements_requires' ) );
+		add_filter( 'post_plugin_row_meta', array( $this, 'modify_plugin_row_elements_requires' ), 10, 2 );
 		add_filter( 'plugin_action_links_' . $plugin_file, array( $this, 'add_manage_dependencies_action_link' ), 10, 2 );
 		add_filter( 'network_admin_plugin_action_links_' . $plugin_file, array( $this, 'add_manage_dependencies_action_link' ), 10, 2 );
 	}
