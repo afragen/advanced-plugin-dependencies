@@ -34,7 +34,7 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 	 *
 	 * @return void
 	 */
-	public static function initialize() {
+	public function initialize() {
 		if ( is_admin() ) {
 			add_filter( 'plugins_api_result', array( __CLASS__, 'add_plugin_card_dependencies' ), 10, 3 );
 			add_filter( 'plugins_api_result', array( __CLASS__, 'plugins_api_result' ), 10, 3 );
@@ -553,4 +553,4 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 	}
 }
 
-( new Advanced_Plugin_Dependencies() )::initialize();
+( new Advanced_Plugin_Dependencies() )->initialize();
