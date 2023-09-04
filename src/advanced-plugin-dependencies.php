@@ -127,8 +127,8 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 	 * @return void
 	 */
 	public static function modify_dependency_plugin_row( $plugin_file ) {
-		self::remove_hook( 'post_plugin_row_meta', array( 'WP_Plugin_Dependencies', 'modify_plugin_row_elements' ) );
-		add_action( 'post_plugin_row_meta', array( __CLASS__, 'modify_plugin_row_elements' ), 10, 3 );
+		self::remove_hook( 'after_plugin_row_meta', array( 'WP_Plugin_Dependencies', 'modify_plugin_row_elements' ) );
+		add_action( 'after_plugin_row_meta', array( __CLASS__, 'modify_plugin_row_elements' ), 10, 3 );
 	}
 
 	/**
@@ -138,8 +138,8 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 	 * @return void
 	 */
 	public static function modify_requires_plugin_row( $plugin_file ) {
-		self::remove_hook( 'post_plugin_row_meta', array( 'WP_Plugin_Dependencies', 'modify_plugin_row_elements_requires' ) );
-		add_filter( 'post_plugin_row_meta', array( __CLASS__, 'modify_plugin_row_elements_requires' ), 10, 2 );
+		self::remove_hook( 'after_plugin_row_meta', array( 'WP_Plugin_Dependencies', 'modify_plugin_row_elements_requires' ) );
+		add_filter( 'after_plugin_row_meta', array( __CLASS__, 'modify_plugin_row_elements_requires' ), 10, 2 );
 		add_filter( 'plugin_action_links_' . $plugin_file, array( __CLASS__, 'add_manage_dependencies_action_link' ), 10, 2 );
 		add_filter( 'network_admin_plugin_action_links_' . $plugin_file, array( __CLASS__, 'add_manage_dependencies_action_link' ), 10, 2 );
 	}
