@@ -47,6 +47,7 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 
 			self::remove_hook( 'admin_notices', array( 'WP_Plugin_Dependencies', 'admin_notices' ) );
 			self::remove_hook( 'network_admin_notices', array( 'WP_Plugin_Dependencies', 'admin_notices' ) );
+			self::remove_hook( 'admin_init', array( 'WP_Plugin_Dependencies', 'modify_plugin_row' ), 15 );
 
 			add_action( 'admin_init', array( __CLASS__, 'modify_plugin_row' ), 15 );
 			add_action( 'admin_notices', array( __CLASS__, 'admin_notices' ) );
@@ -205,7 +206,7 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 			$required   = array_merge( $required, $dependents );
 		}
 
-		foreach ( (array) $plugin['requires_plugins']as $slug ) {
+		foreach ( (array) $plugin['requires_plugins'] as $slug ) {
 			if ( isset( self::$plugin_data[ $slug ] ) ) {
 				$require_names = self::$plugin_data[ $slug ]['name'];
 				$requires[]    = $require_names;
