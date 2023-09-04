@@ -98,7 +98,7 @@ class Tests_Admin_WpPluginDependencies extends WP_UnitTestCase {
 		$this->markTestSkipped( 'must be revisited.' );
 
 		$advanced_dependencies = new Advanced_Plugin_Dependencies();
-		$split_slug    = $this->make_method_accessible( $advanced_dependencies, 'split_slug' );
+		$split_slug            = $this->make_method_accessible( $advanced_dependencies, 'split_slug' );
 
 		// The slug is trimmed before being passed to the 'wp_plugin_dependencies_slug' filter.
 		$actual = $split_slug->invoke( $advanced_dependencies, trim( $slug ) );
