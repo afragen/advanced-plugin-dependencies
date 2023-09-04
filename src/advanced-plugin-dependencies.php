@@ -424,11 +424,7 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 		$rest_endpoints = self::$api_endpoints;
 		self::$args     = $args;
 
-		// TODO: no need for Reflection in when in core, use self::$parse_plugin_headers.
-		$wp_plugin_dependencies = new WP_Plugin_Dependencies();
-		$parse_headers          = new ReflectionMethod( $wp_plugin_dependencies, 'parse_plugin_headers' );
-		$parse_headers->setAccessible( true );
-		$plugin_headers = $parse_headers->invoke( $wp_plugin_dependencies );
+		$plugin_headers = parent::parse_plugin_headers();
 
 		if ( is_wp_error( $response )
 			|| ( property_exists( $args, 'slug' ) && array_key_exists( $args->slug, self::$api_endpoints ) )
