@@ -541,7 +541,7 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 					if ( is_array( $hook['function'] )
 						&& ( $hook['function'][0] instanceof $callback[0] || $hook['function'][0] === $callback[0] )
 					) {
-						$result = remove_filter( $hook_name, array( $hook['function'][0], $callback[1], $priority ) );
+						remove_filter( $hook_name, array( $hook['function'][0], $callback[1] ), $priority );
 					}
 				}
 			}
