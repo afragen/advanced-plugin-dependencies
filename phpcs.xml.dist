@@ -1,21 +1,17 @@
 <?xml version="1.0"?>
-<ruleset name="WordPress-Core-Plugins">
+<ruleset name="WordPress Core Plugins">
     <description>Keep long array syntax.</description>
 
     <!-- Show progress and sniff codes in all reports -->
     <arg value="ps"/>
 
     <!-- Exclude these -->
-    <exclude-pattern>/vendor/</exclude-pattern>
-    <exclude-pattern>/node_modules/</exclude-pattern>
-    <exclude-pattern>/tests/</exclude-pattern>
-    <exclude-pattern>/test-plugins/</exclude-pattern>
+    <exclude-pattern>/vendor/*</exclude-pattern>
+    <exclude-pattern>/node_modules/*</exclude-pattern>
+    <exclude-pattern>/tests/*</exclude-pattern>
+    <exclude-pattern>/test-plugins/*</exclude-pattern>
     <exclude-pattern>*.js</exclude-pattern>
 
-    <rule ref="WordPress-Core">
-        <exclude name="WordPress.Files.FileName.InvalidClassFileName" />
-        <exclude name="WordPress.Files.FileName.NotHyphenatedLowercase" />
-    </rule>
     <rule ref="WordPress">
         <!-- <exclude name="WordPress.Files.FileName" /> -->
         <exclude name="WordPress.Files.FileName.InvalidClassFileName" />
@@ -37,16 +33,10 @@
     </rule>
 
     <rule ref="Universal">
+        <exclude name="Universal.Namespaces.EnforceCurlyBraceSyntax.Forbidden" />
         <exclude name="Universal.NamingConventions.NoReservedKeywordParameterNames.trueFound" />
         <exclude name="Universal.Classes.RequireFinalClass.NonFinalClassFound" />
         <exclude name="Universal.FunctionDeclarations.NoLongClosures.ExceedsRecommended" />
         <exclude name="Universal.ControlStructures.IfElseDeclaration.NoNewLine" />
     </rule>
-
-    <!-- Use only long arrays -->
-    <rule ref="Generic.Arrays.DisallowShortArraySyntax" />
-    <rule ref="Generic.Arrays">
-        <exclude name="Generic.Arrays.DisallowLongArraySyntax.Found" />
-    </rule>
-
 </ruleset>
