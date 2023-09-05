@@ -10,16 +10,18 @@
     <exclude-pattern>/node_modules/*</exclude-pattern>
     <exclude-pattern>/tests/*</exclude-pattern>
     <exclude-pattern>/test-plugins/*</exclude-pattern>
-    <exclude-pattern>*.js</exclude-pattern>
+
+    <!-- Only check PHP files. -->
+    <arg name="extensions" value="php"/>
 
     <rule ref="WordPress">
         <!-- <exclude name="WordPress.Files.FileName" /> -->
-        <exclude name="WordPress.Files.FileName.InvalidClassFileName" />
-        <exclude name="WordPress.Files.FileName.NotHyphenatedLowercase" />
-        <exclude name="WordPress.NamingConventions.ValidVariableName" />
-        <exclude name="WordPress.WP.I18n.NonSingularStringLiteralText" />
-        <exclude name="WordPress.PHP.NoSilencedErrors.Discouraged" />
-        <exclude name="WordPress.PHP.DisallowShortTernary.Found" />
+        <exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
+        <exclude name="WordPress.Files.FileName.NotHyphenatedLowercase"/>
+        <exclude name="WordPress.NamingConventions.ValidVariableName"/>
+        <exclude name="WordPress.WP.I18n.NonSingularStringLiteralText"/>
+        <exclude name="WordPress.PHP.NoSilencedErrors.Discouraged"/>
+        <exclude name="WordPress.PHP.DisallowShortTernary.Found"/>
     </rule>
 
     <!-- Enforce space before closing parenthesis -->
@@ -27,16 +29,16 @@
         <severity>5</severity>
     </rule>
     <rule ref="Squiz.ControlStructures">
-        <exclude name="Squiz.ControlStructures.ControlSignature.SpaceAfterCloseBrace" />
-        <exclude name="Squiz.ControlStructures.ForEachLoopDeclaration.SpaceAfterOpen" />
-        <exclude name="Squiz.ControlStructures.ForEachLoopDeclaration.SpaceBeforeClose" />
+        <exclude name="Squiz.ControlStructures.ControlSignature.SpaceAfterCloseBrace"/>
+        <exclude name="Squiz.ControlStructures.ForEachLoopDeclaration.SpaceAfterOpen"/>
+        <exclude name="Squiz.ControlStructures.ForEachLoopDeclaration.SpaceBeforeClose"/>
     </rule>
 
     <rule ref="Universal">
-        <exclude name="Universal.Namespaces.EnforceCurlyBraceSyntax.Forbidden" />
-        <exclude name="Universal.NamingConventions.NoReservedKeywordParameterNames.trueFound" />
-        <exclude name="Universal.Classes.RequireFinalClass.NonFinalClassFound" />
-        <exclude name="Universal.FunctionDeclarations.NoLongClosures.ExceedsRecommended" />
-        <exclude name="Universal.ControlStructures.IfElseDeclaration.NoNewLine" />
+        <exclude name="Universal.Namespaces.EnforceCurlyBraceSyntax.Forbidden"/>
+        <exclude name="Universal.NamingConventions.NoReservedKeywordParameterNames.trueFound"/>
+        <exclude name="Universal.Classes.RequireFinalClass.NonFinalClassFound"/>
+        <exclude name="Universal.FunctionDeclarations.NoLongClosures.ExceedsRecommended"/>
+        <exclude name="Universal.ControlStructures.IfElseDeclaration.NoNewLine"/>
     </rule>
 </ruleset>
