@@ -518,25 +518,25 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 	 * For correct renaming of downloaded plugin directory,
 	 * some downloads may not be formatted correctly.
 	 *
-	 * @param bool  $true       Default is true.
+	 * @param bool  $response   Default is true.
 	 * @param array $hook_extra Array of data from hook.
 	 * @param array $result     Array of data for installation.
 	 *
 	 * @return bool
 	 */
-	public static function fix_plugin_containing_directory( $true, $hook_extra, $result ) {
+	public static function fix_plugin_containing_directory( $response, $hook_extra, $result ) {
 		if ( ! isset( $hook_extra['slug'] ) ) {
-			return $true;
+			return $response;
 		}
 
 		$from = untrailingslashit( $result['destination'] );
 		$to   = trailingslashit( $result['local_destination'] ) . $hook_extra['slug'];
 
 		if ( trailingslashit( strtolower( $from ) ) !== trailingslashit( strtolower( $to ) ) ) {
-			$true = move_dir( $from, $to, true );
+			$response = move_dir( $from, $to, true );
 		}
 
-		return $true;
+		return $response;
 	}
 
 	/**
