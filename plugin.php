@@ -51,7 +51,7 @@ class Init {
 		add_action( 'install_plugins_dependencies', 'display_plugins_table' );
 		add_action(
 			'install_plugins_table_header',
-			static function() {
+			static function () {
 				// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				$tab = isset( $_GET['tab'] ) ? sanitize_title_with_dashes( wp_unslash( $_GET['tab'] ) ) : '';
 				if ( 'dependencies' === $tab ) {
@@ -95,7 +95,7 @@ class Init {
 
 add_action(
 	'plugins_loaded',
-	function() {
+	function () {
 		if ( ! class_exists( 'WP_Plugin_Dependencies' ) ) {
 			if ( ! function_exists( 'deactivate_plugins' ) ) {
 				require_once ABSPATH . 'wp-admin/includes/plugin.php';
