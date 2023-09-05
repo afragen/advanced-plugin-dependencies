@@ -1,6 +1,6 @@
 {
-  "name": "wordpress/wp-plugin-dependencies",
-  "description": "Parses 'Requires Plugins' header, add plugin install dependencies tab, and information about dependencies.",
+  "name": "afragen/advanced-plugin-dependencies",
+  "description": "Add plugin install dependencies tab, support for non dot org plugins, and information about dependencies.",
   "type": "wordpress-plugin",
   "license": "MIT",
   "authors": [
@@ -12,12 +12,12 @@
     }
   ],
   "support": {
-    "issues": "https://github.com/WordPress/wp-plugin-dependencies/issues",
-    "source": "https://github.com/WordPress/wp-plugin-dependencies"
+    "issues": "https://github.com/WordPress/advanced-plugin-dependencies/issues",
+    "source": "https://github.com/WordPress/advanced-plugin-dependencies"
   },
   "prefer-stable": true,
   "require": {
-    "php": ">=5.6"
+    "php": ">=7.0"
   },
   "require-dev": {
     "dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
