@@ -5,14 +5,14 @@
     <!-- Show progress and sniff codes in all reports -->
     <arg value="ps"/>
 
+    <!-- Only check PHP files. -->
+    <arg name="extensions" value="php"/>
+
     <!-- Exclude these -->
     <exclude-pattern>/vendor/*</exclude-pattern>
     <exclude-pattern>/node_modules/*</exclude-pattern>
     <exclude-pattern>/tests/*</exclude-pattern>
     <exclude-pattern>/test-plugins/*</exclude-pattern>
-
-    <!-- Only check PHP files. -->
-    <arg name="extensions" value="php"/>
 
     <rule ref="WordPress">
         <!-- <exclude name="WordPress.Files.FileName" /> -->
