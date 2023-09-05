@@ -218,6 +218,27 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 	}
 
 	/**
+	 * Display plugin card data for Dependencies tab.
+	 *
+	 * @param string $description Plugin card description.
+	 * @return string
+	 */
+	public static function set_plugin_card_data( $description ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$tab = isset( $_GET['tab'] ) ? sanitize_title_with_dashes( wp_unslash( $_GET['tab'] ) ) : '';
+		if ( ! empty( self::$plugin_card_data && 'dependencies' === $tab ) ) {
+			self::$plugin_card_data = array_filter( self::$plugin_card_data );
+			$data                   = '<div class="plugin-dependency">' . implode( '</div><div class="plugin-dependency">', self::$plugin_card_data ) . '</div>';
+			$notice                 = '<div class="plugin-dependencies plugin-dependencies-explainer-text">' . $data . '</div>';
+			$description            = $description . $notice;
+		}
+
+		self::$plugin_card_data = array();
+
+		return $description;
+	}
+
+	/**
 	 * Add 'Dependencies' link to install plugin tab in plugin row action links.
 	 *
 	 * @param array  $actions     Plugin action links.
