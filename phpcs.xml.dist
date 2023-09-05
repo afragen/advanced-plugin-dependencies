@@ -6,10 +6,10 @@
     <arg value="ps"/>
 
     <!-- Exclude these -->
-    <exclude-pattern>*/vendor/*</exclude-pattern>
-    <exclude-pattern>*/node_modules/*</exclude-pattern>
-    <exclude-pattern>*/tests/*</exclude-pattern>
-    <exclude-pattern>*/test-plugins/*</exclude-pattern>
+    <exclude-pattern>/vendor/</exclude-pattern>
+    <exclude-pattern>/node_modules/</exclude-pattern>
+    <exclude-pattern>/tests/</exclude-pattern>
+    <exclude-pattern>/test-plugins/</exclude-pattern>
     <exclude-pattern>*.js</exclude-pattern>
 
     <rule ref="WordPress-Core">
@@ -30,10 +30,23 @@
     <rule ref="Squiz.Functions.FunctionDeclarationArgumentSpacing.SpacingBeforeClose">
         <severity>5</severity>
     </rule>
+    <rule ref="Squiz.ControlStructures">
+        <exclude name="Squiz.ControlStructures.ControlSignature.SpaceAfterCloseBrace" />
+        <exclude name="Squiz.ControlStructures.ForEachLoopDeclaration.SpaceAfterOpen" />
+        <exclude name="Squiz.ControlStructures.ForEachLoopDeclaration.SpaceBeforeClose" />
+    </rule>
 
-    <rule ref="Generic.Arrays.DisallowShortArraySyntax" />
+    <rule ref="Universal">
+        <exclude name="Universal.NamingConventions.NoReservedKeywordParameterNames.trueFound" />
+        <exclude name="Universal.Classes.RequireFinalClass.NonFinalClassFound" />
+        <exclude name="Universal.FunctionDeclarations.NoLongClosures.ExceedsRecommended" />
+        <exclude name="Universal.ControlStructures.IfElseDeclaration.NoNewLine" />
+    </rule>
+
     <!-- Use only long arrays -->
+    <rule ref="Generic.Arrays.DisallowShortArraySyntax" />
     <rule ref="Generic.Arrays">
         <exclude name="Generic.Arrays.DisallowLongArraySyntax.Found" />
     </rule>
+
 </ruleset>
