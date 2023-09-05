@@ -199,10 +199,10 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 			$plugin['requires_plugins'] = array();
 		}
 		if ( in_array( $plugin['slug'], array_keys( self::$plugin_data ), true ) ) {
-			$dependents = self::get_dependency_sources( $plugin );
-			$dependents = explode( ', ', $dependents );
-			$required[] = '<strong>' . __( 'Required by:', 'advanced-plugin-dependencies' ) . '</strong>';
-			$required   = array_merge( $required, $dependents );
+			$dependents    = self::get_dependency_sources( $plugin );
+			$dependents    = explode( ', ', $dependents );
+			$dependents[0] = '<strong>' . __( 'Required by:', 'advanced-plugin-dependencies' ) . '</strong>' . $dependents[0];
+			$required      = array_merge( $required, $dependents );
 		}
 
 		foreach ( (array) $plugin['requires_plugins'] as $slug ) {
