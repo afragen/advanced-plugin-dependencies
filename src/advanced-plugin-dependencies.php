@@ -338,13 +338,13 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 
 			// Remove elements with duplicate circular dependency pair.
 			if ( is_array( $circular_dependencies ) ) {
-				$circular_dependencies = array_map( 'unserialize', array_unique( array_map( 'serialize', $circular_dependencies ) ) );
-				foreach ( $circular_dependencies as $key => $dependency ) {
-					$dependency = array_unique( $dependency );
-					if ( count( $dependency ) === 1 ) {
-						unset( $circular_dependencies[ $key ] );
+				$circular_dependencies = array_unique( $circular_dependencies, SORT_REGULAR );
+				$circular_dependencies = array_filter(
+					$circular_dependencies,
+					function( $deps ) {
+						return isset( $deps[1] ) && $deps[0] !== $deps[1];
 					}
-				}
+				);
 			}
 
 			if ( ! empty( $circular_dependencies ) && count( $circular_dependencies ) > 1 ) {
