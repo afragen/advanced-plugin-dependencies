@@ -4,8 +4,8 @@
 * Description: Add plugin install dependencies tab, support for non dot org plugins, and information about dependencies.
 * License: MIT
 * Network: true
-* Requires at least: 6.3
-* Requires PHP: 7.0
+* Requires at least: 6.4
+* Requires PHP: 7.2
 * Stable release: main
 
 ## Description
