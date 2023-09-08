@@ -1,63 +1,11 @@
 <?php
 /**
- * Test WP_Plugin_Dependencies class.
+ * Test Advanced_Plugin_Dependencies class.
  *
- * @package WP_Plugin_Dependencies
+ * @package Advanced_Plugin_Dependencies
  *
- * @group admin
- * @group plugins
  */
 class Tests_Admin_WpPluginDependencies extends WP_UnitTestCase {
-	/**
-	 * Stored the plugins directory.
-	 *
-	 * @var string
-	 */
-	protected static $plugins_dir;
-
-	/**
-	 * Sets up the plugins directory before any tests run.
-	 */
-	public static function set_up_before_class() {
-		self::$plugins_dir = WP_PLUGIN_DIR . '/wp_plugin_dependencies_plugin';
-		@mkdir( self::$plugins_dir );
-	}
-
-	/**
-	 * Removes the plugins directory after all tests run.
-	 */
-	public static function tear_down_after_class() {
-		array_map( 'unlink', array_filter( (array) glob( self::$plugins_dir . '/*' ) ) );
-		rmdir( self::$plugins_dir );
-	}
-
-	/**
-	 * Creates a single-file plugin.
-	 *
-	 * @param string $data     Optional. Data for the plugin file. Default is a dummy plugin header.
-	 * @param string $filename Optional. Filename for the plugin file. Default is a random string.
-	 * @param string $dir_path Optional. Path for directory where the plugin should live.
-	 * @return array Two-membered array of filename and full plugin path.
-	 */
-	private function create_plugin( $filename, $data = "<?php\n/*\nPlugin Name: Test\n*/", $dir_path = false ) {
-		if ( false === $filename ) {
-			$filename = 'create_plugin.php';
-		}
-
-		if ( false === $dir_path ) {
-			$dir_path = WP_PLUGIN_DIR;
-		}
-
-		$filename  = wp_unique_filename( $dir_path, $filename );
-		$full_name = $dir_path . '/' . $filename;
-
-		$file = fopen( $full_name, 'w' );
-		fwrite( $file, $data );
-		fclose( $file );
-
-		return array( $filename, $full_name );
-	}
-
 	/**
 	 * Makes a class property accessible.
 	 *
