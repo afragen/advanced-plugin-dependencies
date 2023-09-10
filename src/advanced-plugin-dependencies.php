@@ -341,7 +341,7 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 				$circular_dependencies = array_unique( $circular_dependencies, SORT_REGULAR );
 				$circular_dependencies = array_filter(
 					$circular_dependencies,
-					function( $deps ) {
+					static function ( $deps ) {
 						return isset( $deps[1] ) && $deps[0] !== $deps[1];
 					}
 				);

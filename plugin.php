@@ -95,7 +95,7 @@ class Init {
 
 add_action(
 	'plugins_loaded',
-	function () {
+	static function () {
 		if ( ! class_exists( 'WP_Plugin_Dependencies' ) ) {
 			if ( ! function_exists( 'deactivate_plugins' ) ) {
 				require_once ABSPATH . 'wp-admin/includes/plugin.php';
