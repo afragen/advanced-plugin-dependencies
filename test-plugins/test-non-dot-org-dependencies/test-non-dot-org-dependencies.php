@@ -1,6 +1,9 @@
 <?php
-
 /**
+ * Test Non .org Dependencies
+ *
+ * @package advanced-plugin-dependencies
+ *
  * Plugin Name: Test Non .org Dependencies
  * Author: Andy Fragen
  * Version: 0.1

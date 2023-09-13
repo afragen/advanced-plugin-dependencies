@@ -416,8 +416,18 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 			|| ! property_exists( $response, 'slug' )
 			|| ! property_exists( $response, 'short_description' )
 		) {
-			$dependencies      = self::get_dependency_filepaths();
-			$file              = $dependencies[ $slug ];
+			$dependencies = self::get_dependency_filepaths();
+			if ( ! isset( $dependencies[ $slug ] ) ) {
+				$file = array_filter(
+					array_keys( self::$plugins ),
+					function ( $file ) use( $slug ) {
+						return str_contains( $file, $slug );
+					}
+				);
+				$file = array_pop( $file );
+			} else {
+				$file = $dependencies[ $slug ];
+			}
 			$args              = $file ? self::$plugins[ $file ] : $args;
 			$short_description = __( 'You will need to manually install this dependency. Please contact the plugin\'s developer and ask them to add plugin dependencies support and for information on how to install the this dependency.', 'advanced-plugin-dependencies' );
 			$dependencies      = isset( self::$plugin_dirnames[ $slug ] ) && ! empty( self::$plugins[ self::$plugin_dirnames[ $slug ] ]['RequiresPlugins'] )
