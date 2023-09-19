@@ -50,6 +50,7 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 
 			// add_filter( 'plugin_install_description', array( __CLASS__, 'plugin_install_description_installed' ), 10, 2 );
 			add_filter( 'plugin_install_description', array( __CLASS__, 'add_dependents_to_dependencies_tab_plugin_cards' ), 10, 2 );
+			add_filter( 'wp_admin_notice_markup', array( __CLASS__, 'dependency_notice_with_link' ), 10, 1 );
 
 			self::detect_non_dotorg_dependencies();
 			self::add_non_dotorg_dependency_api_data();
@@ -389,6 +390,36 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 			}
 		}
 	}
+
+		/**
+		 * Switch admin notice markup with markup including link to Dependencies tab.
+		 *
+		 * @global $pagenow Current page.
+		 *
+		 * @param string $markup  The HTML markup for the admin notice.
+		 *
+		 * @return string
+		 */
+	public static function dependency_notice_with_link( $markup ) {
+		global $pagenow;
+
+		if ( 'plugin-install.php' === $pagenow
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			&& ( isset( $_GET['tab'] ) && 'dependencies' === wp_unslash( $_GET['tab'] ) )
+		) {
+			return $markup;
+		}
+
+		$message = __( 'There are additional plugin dependencies that must be installed.' );
+
+		/* translators: 1: link to Dependencies install page */
+		$link_message = sprintf( __( 'Go to the %s install page.', 'advanced-plugin-dependencies' ), self::get_dependency_link( true ) );
+
+		if ( str_contains( $markup, $message ) && ! str_contains( $markup, $link_message ) ) {
+			$markup = str_replace( $message, "$message $link_message", $markup );
+		}
+
+		return $markup; }
 
 	/**
 	 * Get Dependencies link.
