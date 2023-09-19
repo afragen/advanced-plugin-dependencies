@@ -111,10 +111,12 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 			$dependency_data         = (array) self::fetch_non_dotorg_dependency_data( $slug );
 			$dependency_data['Name'] = $dependency_data['name'];
 
-			if ( isset( $dependency_data['sections']['description'] ) ) {
-				$dependency_data['short_description'] = '<p>' . $dependency_data['sections']['description'] . '</p>' . $short_description;
-			} else {
-				$dependency_data['short_description'] = $short_description;
+			if ( ! isset( $dependency_data['short_description'] ) ) {
+				if ( isset( $dependency_data['sections']['description'] ) ) {
+					$dependency_data['short_description'] = substr( $dependency_data['sections']['description'], 0, 150 ) . '...';
+				} else {
+					$dependency_data['short_description'] = $short_description;
+				}
 			}
 			self::$dependency_api_data[ $slug ] = $dependency_data;
 		}
@@ -392,15 +394,15 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 		}
 	}
 
-		/**
-		 * Switch admin notice markup with markup including link to Dependencies tab.
-		 *
-		 * @global $pagenow Current page.
-		 *
-		 * @param string $markup  The HTML markup for the admin notice.
-		 *
-		 * @return string
-		 */
+	/**
+	 * Switch admin notice markup with markup including link to Dependencies tab.
+	 *
+	 * @global $pagenow Current page.
+	 *
+	 * @param string $markup  The HTML markup for the admin notice.
+	 *
+	 * @return string
+	 */
 	public static function dependency_notice_with_link( $markup ) {
 		global $pagenow;
 
