@@ -30,6 +30,13 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 	private static $args;
 
 	/**
+	 * Holds non-WordPress.org dependency slugs.
+	 *
+	 * @var string[]
+	 */
+	private static $non_dotorg_dependency_slugs = array();
+
+	/**
 	 * Initialize, load filters, and get started.
 	 *
 	 * @return void
@@ -39,21 +46,116 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 			add_filter( 'plugins_api_result', array( __CLASS__, 'plugins_api_result' ), 10, 3 );
 			add_filter( 'plugins_api_result', array( __CLASS__, 'empty_plugins_api_result' ), 10, 3 );
 			add_filter( 'upgrader_post_install', array( __CLASS__, 'fix_plugin_containing_directory' ), 10, 3 );
-			add_filter( 'wp_plugin_dependencies_slug', array( __CLASS__, 'split_slug' ), 10, 1 );
-			add_filter( 'plugin_install_description', array( __CLASS__, 'plugin_install_description_installed' ), 10, 2 );
-			add_filter( 'plugin_install_description', array( __CLASS__, 'plugin_install_description_dependencies_tab' ), 10, 1 );
-			add_filter( 'plugin_install_action_links', array( __CLASS__, 'disable_activate_button' ), 10, 2 );
-
-			self::remove_hook( 'admin_notices', array( 'WP_Plugin_Dependencies', 'display_admin_notice_for_unmet_dependencies' ) );
-			self::remove_hook( 'network_admin_notices', array( 'WP_Plugin_Dependencies', 'display_admin_notice_for_unmet_dependencies' ) );
-
 			add_action( 'admin_init', array( __CLASS__, 'modify_plugin_row' ), 15 );
-			add_action( 'admin_notices', array( __CLASS__, 'display_admin_notice_for_unmet_dependencies' ) );
-			add_action( 'network_admin_notices', array( __CLASS__, 'display_admin_notice_for_unmet_dependencies' ) );
+
+			//add_filter( 'plugin_install_description', array( __CLASS__, 'plugin_install_description_installed' ), 10, 2 );
+			add_filter( 'plugin_install_description', array( __CLASS__, 'add_dependents_to_dependencies_tab_plugin_cards' ), 10, 2 );
+
+			self::detect_non_dotorg_dependencies();
+			self::add_non_dotorg_dependency_api_data();
+		}
+	}
+
+	/**
+	 * Detects non-WordPress.org plugin dependencies which have the format "slug|endpoint".
+	 *
+	 * @return void
+	 */
+	protected static function detect_non_dotorg_dependencies() {
+		foreach ( self::$plugins as $plugin => $data ) {
+			// Skip plugins with no dependencies or no non-dotorg dependencies.
+			if ( empty( $data['RequiresPlugins'] ) || ! str_contains( $data['RequiresPlugins'], '|' ) ) {
+				continue;
+			}
+
+			$dependencies = array_map( 'trim', explode( ',', $data['RequiresPlugins'] ) );
+
+			foreach ( $dependencies as $dependency ) {
+				// Skip invalid formats.
+				if ( ! str_contains( $dependency, '|' ) || str_starts_with( $dependency, '|' ) || str_ends_with( $dependency, '|' ) ) {
+					continue;
+				}
+
+				list( $slug, $endpoint ) = array_map( 'trim', explode( '|', $dependency ) );
+
+				if ( str_contains( $slug, '|' ) || str_contains( '|', $endpoint ) ) {
+					continue;
+				}
+
+				if ( isset( self::$dependencies[ $plugin ] ) && ! in_array( $slug, self::$dependencies[ $plugin ], true ) ) {
+					self::$dependencies[ $plugin ][]     = $slug;
+					self::$dependency_slugs[]            = $slug;
+					self::$dependent_slugs[ $plugin ]    = str_contains( $plugin, '/' ) ? dirname( $plugin ) : $plugin;
+					self::$non_dotorg_dependency_slugs[] = $slug;
+				}
+
+				// Handle local JSON files.
+				if ( ! str_starts_with( $endpoint, 'http' ) && str_ends_with( $endpoint, '.json' ) ) {
+					$endpoint = plugin_dir_url( $plugin ) . $endpoint;
+				}
+
+				self::$api_endpoints[ $slug ] = $endpoint;
+			}
+		}
+	}
+
+	/**
+	 * Adds non-WordPress.org dependency API data to `self::$dependency_api_data`.
+	 *
+	 * @return void
+	 */
+	protected static function add_non_dotorg_dependency_api_data() {
+		$short_description = __( "You will need to manually install this dependency. Please contact the plugin's developer and ask them to add plugin dependencies support and for information on how to install the this dependency.", 'advanced-plugin-dependencies' );
+		foreach ( self::$non_dotorg_dependency_slugs as $slug ) {
+			$dependency_data                      = (array) self::fetch_non_dotorg_dependency_data( $slug );
+
+			if ( isset( $dependency_data['sections']['description'] ) ) {
+				$dependency_data['short_description'] = '<p>' . $dependency_data['sections']['description'] . '</p>' . $short_description;
+			} else {
+				$dependency_data['short_description'] = $short_description;
+			}
+			self::$dependency_api_data[ $slug ]   = $dependency_data;
+		}
+	}
+
+	/**
+	 * Fetches non-WordPress.org dependency data from their designated endpoints.
+	 *
+	 * @param string $dependency The dependency's slug.
+	 * @return void
+	 */
+	protected static function fetch_non_dotorg_dependency_data( $dependency ) {
+		/**
+		 * Filter the REST enpoints used for lookup of plugins API data.
+		 *
+		 * @param array
+		 */
+		$rest_endpoints = array_merge( self::$api_endpoints, apply_filters( 'plugin_dependency_endpoints', array() ) );
+
+		foreach ( $rest_endpoints as $endpoint ) {
+			// Endpoint must contain correct slug somewhere in URI.
+			if ( ! str_contains( $endpoint, $dependency ) ) {
+				continue;
+			}
+
+			// Get local JSON endpoint.
+			$response = wp_remote_get( $endpoint );
+
+			// Convert response to associative array.
+			$response = json_decode( wp_remote_retrieve_body( $response ), true );
+			if ( null === $response || isset( $response['error'] ) || isset( $response['code'] ) ) {
+				$message  = isset( $response['error'] ) ? $response['error'] : '';
+				$response = new WP_Error( 'error', 'Error retrieving plugin data.', $message );
+			}
+			if ( ! is_wp_error( $response ) ) {
+				break;
+			}
 		}
 
-		parent::read_dependencies_from_plugin_headers();
-		parent::get_dependency_api_data();
+		// Add slug to hook_extra.
+		add_filter( 'upgrader_package_options', array( __CLASS__, 'upgrader_package_options' ), 10, 1 );
+
+		return $response;
 	}
 
 	/**
@@ -88,7 +190,7 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 	 */
 	public static function empty_plugins_api_result( $res, $action, $args ) {
 		if ( is_wp_error( $res ) ) {
-			if ( in_array( $args->slug, array_keys( self::$api_endpoints ), true ) ) {
+			if ( array_key_exists( $args->slug, self::$api_endpoints ) ) {
 				$res = self::add_plugin_card_dependencies( $res, $action, $args );
 			} else {
 				$res = self::get_empty_plugins_api_response( $res, $action, (array) $args );
@@ -114,138 +216,49 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 		$dependency_paths = self::get_dependency_filepaths();
 		foreach ( $dependency_paths as $plugin_file ) {
 			if ( $plugin_file ) {
-				self::add_dependency_plugin_row_hooks( $plugin_file );
+				add_filter( 'plugin_action_links_' . $plugin_file, array( __CLASS__, 'add_manage_dependencies_action_link' ) );
 			}
 		}
 		foreach ( array_keys( self::$dependencies ) as $plugin_file ) {
-			self::add_dependent_plugin_row_hooks( $plugin_file );
+			add_filter( 'network_admin_plugin_action_links_' . $plugin_file, array( __CLASS__, 'add_manage_dependencies_action_link' ) );
 		}
 	}
 
 	/**
-	 * Actually make modifications to plugin row of plugin dependencies.
+	 * Adds dependents to a plugin card on the Dependencies tab.
 	 *
-	 * @param string $plugin_file Plugin file.
-	 * @return void
+	 * @param string $description Plugin card description.
+	 * @param array  $plugin      An array of plugin data. See {@see plugins_api()}
+	 *                           for the list of possible values.
+	 * @return string The modified plugin card description.
 	 */
-	public static function add_dependency_plugin_row_hooks( $plugin_file ) {
-		self::remove_hook( 'after_plugin_row_meta', array( 'WP_Plugin_Dependencies', 'add_dependents_to_dependency_plugin_row' ), 10 );
-		add_action( 'after_plugin_row_meta', array( __CLASS__, 'add_dependents_to_dependency_plugin_row' ), 10, 3 );
-	}
-
-	/**
-	 * Add 'Manage Dependencies' action link to plugin row of requiring plugin.
-	 *
-	 * @param string $plugin_file Plugin file.
-	 * @return void
-	 */
-	public static function add_dependent_plugin_row_hooks( $plugin_file ) {
-		self::remove_hook( 'after_plugin_row_meta', array( 'WP_Plugin_Dependencies', 'add_dependencies_to_dependent_plugin_row' ), 10 );
-		add_filter( 'after_plugin_row_meta', array( __CLASS__, 'add_dependencies_to_dependent_plugin_row' ), 10, 2 );
-		add_filter( 'plugin_action_links_' . $plugin_file, array( __CLASS__, 'add_manage_dependencies_action_link' ), 10, 2 );
-		add_filter( 'network_admin_plugin_action_links_' . $plugin_file, array( __CLASS__, 'add_manage_dependencies_action_link' ), 10, 2 );
-	}
-
-	/**
-	 * Disable 'Activate' for dependencies with unmet dependencies.
-	 *
-	 * @global $pagenow Current page.
-	 *
-	 * @param array $action_links Array of plugin install action links.
-	 * @param array $plugin       Array of plugin data.
-	 * @return array
-	 */
-	public static function disable_activate_button( $action_links, $plugin ) {
-		global $pagenow;
-
-		if ( 'plugin-install.php' !== $pagenow
-			|| ! str_contains( $action_links[0], 'activate-now' )
-		) {
-			return $action_links;
-		}
-
-		$requires     = isset( self::$requires_plugins[ self::$plugin_dirnames[ $plugin['slug'] ] ]['RequiresPlugins'] )
-			? self::$requires_plugins[ self::$plugin_dirnames[ $plugin['slug'] ] ]['RequiresPlugins']
-			: '';
-		$requires_arr = explode( ',', $requires );
-		$requires_arr = array_filter( $requires_arr );
-		foreach ( $requires_arr as $require ) {
-			$inactive_dependency = is_plugin_inactive( self::$plugin_dirnames[ $require ] );
-			if ( $inactive_dependency ) {
-				$action_links[0] .= '<span class="screen-reader-text">' . __( 'Cannot activate due to unmet dependency', 'advanced-plugin-dependencies' ) . '</span>';
-				$action_links[0]  = str_replace( 'activate-now', 'activate-now button-disabled', $action_links[0] );
-				break;
-			}
-		}
-
-		return $action_links;
-	}
-
-	/**
-	 * Add 'Required by: ...' and 'Requires: ...' to plugin install cards.
-	 *
-	 * @param string $description Short description of plugin.
-	 * @param array  $plugin      Array of plugin data.
-	 * @return string
-	 */
-	public static function plugin_install_description_installed( $description, $plugin ) {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	public static function add_dependents_to_dependencies_tab_plugin_cards( $description, $plugin ) {
 		$tab = isset( $_GET['tab'] ) ? sanitize_title_with_dashes( wp_unslash( $_GET['tab'] ) ) : '';
 		if ( 'dependencies' !== $tab ) {
 			return $description;
 		}
 
-		$required = array();
-		$requires = array();
-		if ( ! isset( $plugin['requires_plugins'] ) ) {
-			$plugin['requires_plugins'] = array();
-		}
-		if ( in_array( $plugin['slug'], array_keys( self::$dependency_api_data ), true ) ) {
-			$dependents = self::get_dependent_names( $plugin );
-			$header     = '<strong>' . __( 'Required by:', 'advanced-plugin-dependencies' ) . '</strong>';
-			$required   = array_merge( $required, $dependents );
+		$processor = WP_HTML_Processor::createFragment( $description );
+		if ( $processor->next_tag( array( 'class' => 'plugin-dependencies' ) ) ) {
+			$processor->add_class( 'hidden' );
+			$description = $processor->get_updated_html();
 		}
 
-		foreach ( (array) $plugin['requires_plugins'] as $slug ) {
-			if ( isset( self::$dependency_api_data[ $slug ] ) ) {
-				$require_names = self::$dependency_api_data[ $slug ]['name'];
-				$requires[]    = $require_names;
-			}
+		$row          = '<div class="plugin-dependency"><span class="plugin-dependency-name">%s</span></div>';
+		$dependents   = self::get_dependents( $plugin['slug'] );
+
+		$dependents_list = '';
+		foreach ( $dependents as $dependent ) {
+			$dependents_list .= sprintf( $row, esc_html( self::$plugins[ $dependent ]['Name'] ) );
 		}
 
-		$required = array_unique( array_merge( $requires, $required ) );
-		asort( $required );
-		$required = implode( ', ', $required );
-		$required = $header . $required;
+		$dependents_notice = sprintf(
+			'<div class="plugin-dependencies"><p class="plugin-dependencies-explainer-text">%s</p> %s</div>',
+			'<strong>' . __( 'Required by:' ) . '</strong>',
+			$dependents_list
+		);
 
-		self::$plugin_card_data = array_merge( self::$plugin_card_data, (array) $required );
-
-		return $description;
-	}
-
-	/**
-	 * Display plugin card data for Dependencies tab.
-	 *
-	 * @param string $description Plugin card description.
-	 * @return string
-	 */
-	public static function plugin_install_description_dependencies_tab( $description ) {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$tab = isset( $_GET['tab'] ) ? sanitize_title_with_dashes( wp_unslash( $_GET['tab'] ) ) : '';
-		if ( 'dependencies' === $tab ) {
-			self::remove_hook( 'plugin_install_description', array( 'WP_Plugin_Dependencies', 'add_dependencies_to_dependent_plugin_card' ), 10 );
-			self::remove_hook( 'plugin_install_description', array( 'WP_Plugin_Dependencies', 'plugin_install_description_uninstalled' ), 10 );
-			if ( ! empty( self::$plugin_card_data ) ) {
-				self::$plugin_card_data = array_filter( self::$plugin_card_data );
-				$data                   = '<div class="plugin-dependency">' . implode( '</div><div class="plugin-dependency">', self::$plugin_card_data ) . '</div>';
-				$notice                 = '<div class="plugin-dependencies plugin-dependencies-explainer-text">' . $data . '</div>';
-				$description            = $description . $notice;
-			}
-		}
-
-		self::$plugin_card_data = array();
-
-		return $description;
+		return $description . $dependents_notice;
 	}
 
 	/**
@@ -255,7 +268,7 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 	 * @param string $plugin_file File name.
 	 * @return array
 	 */
-	public static function add_manage_dependencies_action_link( $actions, $plugin_file ) {
+	public static function add_manage_dependencies_action_link( $actions ) {
 		if ( ! isset( $actions['activate'] ) ) {
 			return $actions;
 		}
@@ -505,8 +518,6 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 		$rest_endpoints = self::$api_endpoints;
 		self::$args     = $args;
 
-		parent::read_dependencies_from_plugin_headers();
-
 		if ( is_wp_error( $response )
 			|| ( property_exists( $args, 'slug' ) && array_key_exists( $args->slug, self::$api_endpoints ) )
 		) {
@@ -515,7 +526,7 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 			 *
 			 * @param array
 			 */
-			$rest_endpoints = array_merge( $rest_endpoints, apply_filters( 'plugin_dependency_endpoints', $rest_endpoints ) );
+			$rest_endpoints = array_merge( self::$api_endpoints, apply_filters( 'plugin_dependency_endpoints', array() ) );
 
 			foreach ( $rest_endpoints as $slug => $endpoint ) {
 				// Endpoint must contain correct slug somewhere in URI.
@@ -524,14 +535,14 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 				}
 
 				// Get local JSON endpoint.
-				if ( str_ends_with( $endpoint, 'json' ) ) {
-					foreach ( self::$plugins as $plugin_file => $requires ) {
-						if ( is_array( $requires['RequiresPlugins'] ) && in_array( $slug, $requires['RequiresPlugins'], true ) ) {
-							$endpoint = plugin_dir_url( $plugin_file ) . $endpoint;
-							break;
-						}
-					}
-				}
+				// if ( str_ends_with( $endpoint, 'json' ) ) {
+				// 	foreach ( self::$plugins as $plugin_file => $requires ) {
+				// 		if ( is_array( $requires['RequiresPlugins'] ) && in_array( $slug, $requires['RequiresPlugins'], true ) ) {
+				// 			$endpoint = plugin_dir_url( $plugin_file ) . $endpoint;
+				// 			break;
+				// 		}
+				// 	}
+				// }
 				$response = wp_remote_get( $endpoint );
 
 				// Convert response to associative array.
