@@ -44,13 +44,10 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 	public static function initialize() {
 		if ( is_admin() ) {
 			add_filter( 'plugins_api_result', array( __CLASS__, 'plugins_api_result' ), 10, 3 );
-			add_filter( 'plugins_api_result', array( __CLASS__, 'empty_plugins_api_result' ), 10, 3 );
 			add_filter( 'upgrader_post_install', array( __CLASS__, 'fix_plugin_containing_directory' ), 10, 3 );
-			add_action( 'admin_init', array( __CLASS__, 'modify_plugin_row' ), 15 );
-
-			// add_filter( 'plugin_install_description', array( __CLASS__, 'plugin_install_description_installed' ), 10, 2 );
 			add_filter( 'plugin_install_description', array( __CLASS__, 'add_dependents_to_dependencies_tab_plugin_cards' ), 10, 2 );
 			add_filter( 'wp_admin_notice_markup', array( __CLASS__, 'dependency_notice_with_link' ), 10, 1 );
+			add_action( 'admin_init', array( __CLASS__, 'modify_plugin_row' ), 15 );
 
 			self::detect_non_dotorg_dependencies();
 			self::add_non_dotorg_dependency_api_data();
@@ -185,26 +182,6 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 			);
 
 			$res->plugins = self::$dependency_api_data;
-		}
-
-		return $res;
-	}
-
-	/**
-	 * Get default empty API response for non-dot org plugin.
-	 *
-	 * @param stdClass $res    Object of results.
-	 * @param string   $action Variable for plugins_api().
-	 * @param stdClass $args   Object of plugins_api() args.
-	 * @return stdClass
-	 */
-	public static function empty_plugins_api_result( $res, $action, $args ) {
-		if ( is_wp_error( $res ) ) {
-			if ( array_key_exists( $args->slug, self::$api_endpoints ) ) {
-				$res = self::add_plugin_card_dependencies( $res, $action, $args );
-			} else {
-				$res = self::get_empty_plugins_api_response( $res, $action, (array) $args );
-			}
 		}
 
 		return $res;
@@ -467,13 +444,13 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 		$dependencies = self::get_dependency_filepaths();
 		if ( ! isset( $dependencies[ $slug ] ) ) {
 			$file = array_filter(
-					array_keys( self::$plugins ),
-					function ( $file ) use( $slug ) {
-						return str_contains( $file, $slug );
-					}
-				);
-				$file = array_pop( $file );
-			} else {
+				array_keys( self::$plugins ),
+				function ( $file ) use( $slug ) {
+					return str_contains( $file, $slug );
+				}
+			);
+			$file = array_pop( $file );
+		} else {
 			$file = $dependencies[ $slug ];
 		}
 		$args              = $file ? self::$plugins[ $file ] : $args;
@@ -481,14 +458,14 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 		$dependencies      = isset( self::$plugin_dirnames[ $slug ] ) && ! empty( self::$plugins[ self::$plugin_dirnames[ $slug ] ]['RequiresPlugins'] )
 			? self::$plugins[ self::$plugin_dirnames[ $slug ] ]['RequiresPlugins'] : array();
 		$response          = array(
-				'name'              => $args['Name'],
-				'Name'              => $args['Name'],
-				'slug'              => $slug,
-				'version'           => $args['Version'],
-				'author'            => $args['Author'],
-				'contributors'      => array(),
-				'requires'          => $args['RequiresWP'],
-				'tested'            => '',
+			'name'              => $args['Name'],
+			'Name'              => $args['Name'],
+			'slug'              => $slug,
+			'version'           => $args['Version'],
+			'author'            => $args['Author'],
+			'contributors'      => array(),
+			'requires'          => $args['RequiresWP'],
+			'tested'            => '',
 			'requires_php'      => $args['RequiresPHP'],
 			'requires_plugins'  => $dependencies,
 			'sections'          => array(
@@ -499,10 +476,10 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 			'download_link'     => '',
 			'banners'           => array(),
 			'icons'             => array( 'default' => "https://s.w.org/plugins/geopattern-icon/{$slug}.svg" ),
-				'last_updated'      => '',
-				'num_ratings'       => 0,
-				'rating'            => 0,
-				'active_installs'   => 0,
+			'last_updated'      => '',
+			'num_ratings'       => 0,
+			'rating'            => 0,
+			'active_installs'   => 0,
 			'homepage'          => $args['PluginURI'],
 			'external'          => 'xxx',
 		);
@@ -536,66 +513,6 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 		}
 
 		return $slug;
-	}
-
-	/**
-	 * Filter `plugins_api_result` for adding plugin dependencies.
-	 *
-	 * @param stdClass $response Response from `plugins_api()`.
-	 * @param string   $action   Action type.
-	 * @param stdClass $args     Array of data from hook.
-	 *
-	 * @return void|WP_Error
-	 */
-	public static function add_plugin_card_dependencies( $response, $action, $args ) {
-		$rest_endpoints = self::$api_endpoints;
-		self::$args     = $args;
-
-		if ( is_wp_error( $response )
-			|| ( property_exists( $args, 'slug' ) && array_key_exists( $args->slug, self::$api_endpoints ) )
-		) {
-			/**
-			 * Filter the REST enpoints used for lookup of plugins API data.
-			 *
-			 * @param array
-			 */
-			$rest_endpoints = array_merge( self::$api_endpoints, apply_filters( 'plugin_dependency_endpoints', array() ) );
-
-			foreach ( $rest_endpoints as $slug => $endpoint ) {
-				// Endpoint must contain correct slug somewhere in URI.
-				if ( ! str_contains( $endpoint, $args->slug ) ) {
-					continue;
-				}
-
-				// Get local JSON endpoint.
-				// if ( str_ends_with( $endpoint, 'json' ) ) {
-				// foreach ( self::$plugins as $plugin_file => $requires ) {
-				// if ( is_array( $requires['RequiresPlugins'] ) && in_array( $slug, $requires['RequiresPlugins'], true ) ) {
-				// $endpoint = plugin_dir_url( $plugin_file ) . $endpoint;
-				// break;
-				// }
-				// }
-				// }
-				$response = wp_remote_get( $endpoint );
-
-				// Convert response to associative array.
-				$response         = json_decode( wp_remote_retrieve_body( $response ), true );
-				$response['Name'] = $response['name'];
-
-				if ( null === $response || isset( $response['error'] ) || isset( $response['code'] ) ) {
-					$message  = isset( $response['error'] ) ? $response['error'] : '';
-					$response = new WP_Error( 'error', 'Error retrieving plugin data.', $message );
-				}
-				if ( ! is_wp_error( $response ) ) {
-					break;
-				}
-			}
-
-			// Add slug to hook_extra.
-			add_filter( 'upgrader_package_options', array( __CLASS__, 'upgrader_package_options' ), 10, 1 );
-		}
-
-		return (object) $response;
 	}
 
 	/**
