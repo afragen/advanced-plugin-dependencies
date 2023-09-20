@@ -407,8 +407,8 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 		global $pagenow;
 
 		if ( 'plugin-install.php' === $pagenow
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-			&& ( isset( $_GET['tab'] ) && 'dependencies' === wp_unslash( $_GET['tab'] ) )
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			&& ( isset( $_GET['tab'] ) && 'dependencies' === sanitize_title_with_dashes( wp_unslash( $_GET['tab'] ) ) )
 		) {
 			return $markup;
 		}
