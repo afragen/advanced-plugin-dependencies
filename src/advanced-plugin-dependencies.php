@@ -120,6 +120,12 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 			}
 			self::$dependency_api_data[ $slug ] = $dependency_data;
 		}
+		foreach ( self::$dependency_slugs as $slug ) {
+			if ( ! array_key_exists( $slug, self::$dependency_api_data ) ) {
+				self::$non_dotorg_dependency_slugs[] = $slug;
+				self::$dependency_api_data[ $slug ]  = self::get_empty_plugins_api_response( $slug );
+			}
+		}
 	}
 
 	/**
@@ -443,15 +449,13 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 	/**
 	 * Return empty plugins_api() response.
 	 *
-	 * @param stdClass|WP_Error $response Response from plugins_api().
-	 * @param string            $action   Variable for plugins_api().
-	 * @param array             $args     Array of arguments passed to plugins_api().
-	 * @return stdClass
+	 * @param string $slug Plugin slug.
+	 * @param array  $args Array of plugin
+	 * @return array
 	 */
-	private static function get_empty_plugins_api_response( $response, $action, $args ) {
-		$slug = $args['slug'];
-		$args = array(
-			'Name'        => $args['slug'],
+	private static function get_empty_plugins_api_response( $slug, $args = array() ) {
+		$defaults     = array(
+			'Name'        => $slug,
 			'Version'     => '',
 			'Author'      => '',
 			'Description' => '',
@@ -459,13 +463,10 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 			'RequiresPHP' => '',
 			'PluginURI'   => '',
 		);
-		if ( is_wp_error( $response ) || property_exists( $response, 'error' )
-			|| ! property_exists( $response, 'slug' )
-			|| ! property_exists( $response, 'short_description' )
-		) {
-			$dependencies = self::get_dependency_filepaths();
-			if ( ! isset( $dependencies[ $slug ] ) ) {
-				$file = array_filter(
+		$args         = array_merge( $defaults, $args );
+		$dependencies = self::get_dependency_filepaths();
+		if ( ! isset( $dependencies[ $slug ] ) ) {
+			$file = array_filter(
 					array_keys( self::$plugins ),
 					function ( $file ) use( $slug ) {
 						return str_contains( $file, $slug );
@@ -473,13 +474,13 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 				);
 				$file = array_pop( $file );
 			} else {
-				$file = $dependencies[ $slug ];
-			}
-			$args              = $file ? self::$plugins[ $file ] : $args;
-			$short_description = __( "You will need to manually install this dependency. Please contact the plugin's developer and ask them to add plugin dependencies support and for information on how to install the this dependency.", 'advanced-plugin-dependencies' );
-			$dependencies      = isset( self::$plugin_dirnames[ $slug ] ) && ! empty( self::$plugins[ self::$plugin_dirnames[ $slug ] ]['RequiresPlugins'] )
-				? self::$plugins[ self::$plugin_dirnames[ $slug ] ]['RequiresPlugins'] : array();
-			$response          = array(
+			$file = $dependencies[ $slug ];
+		}
+		$args              = $file ? self::$plugins[ $file ] : $args;
+		$short_description = __( "You will need to manually install this dependency. Please contact the plugin's developerand ask them to add plugin dependencies support and for information on how to install the this dependency.", 'advanced-plugin-dependencies' );
+		$dependencies      = isset( self::$plugin_dirnames[ $slug ] ) && ! empty( self::$plugins[ self::$plugin_dirnames[ $slug ] ]['RequiresPlugins'] )
+			? self::$plugins[ self::$plugin_dirnames[ $slug ] ]['RequiresPlugins'] : array();
+		$response          = array(
 				'name'              => $args['Name'],
 				'Name'              => $args['Name'],
 				'slug'              => $slug,
@@ -488,25 +489,23 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 				'contributors'      => array(),
 				'requires'          => $args['RequiresWP'],
 				'tested'            => '',
-				'requires_php'      => $args['RequiresPHP'],
-				'requires_plugins'  => $dependencies,
-				'sections'          => array(
-					'description'  => '<p>' . $args['Description'] . '</p>' . $short_description,
-					'installation' => __( 'Ask the plugin developer where to download and install this plugin dependency.', 'advanced-plugin-dependencies' ),
-				),
-				'short_description' => '<p>' . $args['Description'] . '</p>' . $short_description,
-				'download_link'     => '',
-				'banners'           => array(),
-				'icons'             => array( 'default' => "https://s.w.org/plugins/geopattern-icon/{$slug}.svg" ),
+			'requires_php'      => $args['RequiresPHP'],
+			'requires_plugins'  => $dependencies,
+			'sections'          => array(
+				'description'  => $args['Description'],
+				'installation' => __( 'Ask the plugin developer where to download and install this plugin dependency.', 'advanced-plugin-dependencies' ),
+			),
+			'short_description' => $short_description,
+			'download_link'     => '',
+			'banners'           => array(),
+			'icons'             => array( 'default' => "https://s.w.org/plugins/geopattern-icon/{$slug}.svg" ),
 				'last_updated'      => '',
 				'num_ratings'       => 0,
 				'rating'            => 0,
 				'active_installs'   => 0,
-				'homepage'          => $args['PluginURI'],
-				'external'          => 'xxx',
-			);
-			$response          = (object) $response;
-		}
+			'homepage'          => $args['PluginURI'],
+			'external'          => 'xxx',
+		);
 
 		return $response;
 	}
