@@ -645,35 +645,6 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 
 		return $response;
 	}
-
-	/**
-	 * Kludge to remove hooks when I can't pass the precise object instance.
-	 *
-	 * @param string                $hook_name The filter hook to which the function to be removed is hooked.
-	 * @param callable|string|array $callback  The callback to be removed from running when the filter is applied.
-	 *                                         This method can be called unconditionally to speculatively remove
-	 *                                         a callback that may or may not exist.
-	 * @param int                   $priority  The exact priority used when adding the original filter callback.
-	 *
-	 * @return void
-	 */
-	private static function remove_hook( $hook_name, $callback, $priority = 10 ) {
-		global $wp_filter;
-
-		if ( isset( $wp_filter[ $hook_name ] ) ) {
-			$hooks = $wp_filter[ $hook_name ];
-			if ( isset( $wp_filter[ $hook_name ]->callbacks[ $priority ] ) ) {
-				$hooks = $wp_filter[ $hook_name ]->callbacks[ $priority ];
-				foreach ( $hooks as $hook ) {
-					if ( is_array( $hook['function'] )
-						&& ( $hook['function'][0] instanceof $callback[0] || $hook['function'][0] === $callback[0] )
-					) {
-						remove_filter( $hook_name, array( $hook['function'][0], $callback[1] ), $priority );
-					}
-				}
-			}
-		}
-	}
 }
 
 Advanced_Plugin_Dependencies::initialize();
