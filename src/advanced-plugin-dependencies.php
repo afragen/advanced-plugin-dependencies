@@ -105,8 +105,17 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 	 */
 	protected static function add_non_dotorg_dependency_api_data() {
 		$short_description = __( "You will need to manually install this dependency. Please contact the plugin's developer and ask them to add plugin dependencies support and for information on how to install the this dependency.", 'advanced-plugin-dependencies' );
+		foreach ( self::$dependency_slugs as $slug ) {
+			if ( ! array_key_exists( $slug, self::$dependency_api_data ) ) {
+				self::$non_dotorg_dependency_slugs[] = $slug;
+				self::$dependency_api_data[ $slug ]  = self::get_empty_plugins_api_response( $slug );
+			}
+		}
 		foreach ( self::$non_dotorg_dependency_slugs as $slug ) {
-			$dependency_data         = (array) self::fetch_non_dotorg_dependency_data( $slug );
+			$dependency_data = (array) self::fetch_non_dotorg_dependency_data( $slug );
+			if ( ! isset( $dependency_data['name'] ) ) {
+				continue;
+			}
 			$dependency_data['Name'] = $dependency_data['name'];
 
 			if ( ! isset( $dependency_data['short_description'] ) ) {
@@ -118,12 +127,7 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 			}
 			self::$dependency_api_data[ $slug ] = $dependency_data;
 		}
-		foreach ( self::$dependency_slugs as $slug ) {
-			if ( ! array_key_exists( $slug, self::$dependency_api_data ) ) {
-				self::$non_dotorg_dependency_slugs[] = $slug;
-				self::$dependency_api_data[ $slug ]  = self::get_empty_plugins_api_response( $slug );
-			}
-		}
+		set_site_transient( 'wp_plugin_dependencies_plugin_data', self::$dependency_api_data, 0 );
 	}
 
 	/**
@@ -133,6 +137,7 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 	 * @return void
 	 */
 	protected static function fetch_non_dotorg_dependency_data( $dependency ) {
+		$response = array();
 		/**
 		 * Filter the REST enpoints used for lookup of plugins API data.
 		 *
@@ -140,9 +145,9 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 		 */
 		$rest_endpoints = array_merge( self::$api_endpoints, apply_filters( 'plugin_dependency_endpoints', array() ) );
 
-		foreach ( $rest_endpoints as $endpoint ) {
-			// Endpoint must contain correct slug somewhere in URI.
-			if ( ! str_contains( $endpoint, $dependency ) ) {
+		foreach ( $rest_endpoints as $slug => $endpoint ) {
+			// Skip if dependency and slug do not match.
+			if ( $dependency !== $slug ) {
 				continue;
 			}
 
