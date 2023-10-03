@@ -94,12 +94,10 @@ class Init {
 	}
 }
 
-// TODO: add after commit.
-// if ( ! class_exists( 'WP_Plugin_Dependencies')) {
 require_once ABSPATH . 'wp-admin/includes/plugin.php';
-if ( ! is_plugin_active( 'wp-plugin-dependencies/plugin.php' ) ) {
+// if ( ! class_exists( 'WP_Plugin_Dependencies' ) ) { // TODO: add after commit.
+if ( ! is_plugin_active( 'wp-plugin-dependencies/plugin.php' ) ) { // TODO: remove after commit.
 	deactivate_plugins( __FILE__ );
 	return;
 }
 new Init();
-// }
