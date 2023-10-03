@@ -81,7 +81,7 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 					continue;
 				}
 
-				if ( isset( self::$dependencies[ $plugin ] ) && ! in_array( $slug, self::$dependencies[ $plugin ], true ) ) {
+				if ( isset( self::$dependencies[ $plugin ] ) && in_array( $slug, self::$dependencies[ $plugin ], true ) ) {
 					self::$dependencies[ $plugin ][]     = $slug;
 					self::$dependency_slugs[]            = $slug;
 					self::$dependent_slugs[ $plugin ]    = str_contains( $plugin, '/' ) ? dirname( $plugin ) : $plugin;
@@ -206,13 +206,10 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 			return;
 		}
 
-		$dependency_paths = self::get_dependency_filepaths();
-		foreach ( $dependency_paths as $plugin_file ) {
-			if ( $plugin_file ) {
-				add_filter( 'plugin_action_links_' . $plugin_file, array( __CLASS__, 'add_manage_dependencies_action_link' ) );
-			}
+		foreach ( self::$dependent_slugs as $plugin_file ) {
+			add_filter( 'plugin_action_links_' . $plugin_file, array( __CLASS__, 'add_manage_dependencies_action_link' ) );
 		}
-		foreach ( array_keys( self::$dependencies ) as $plugin_file ) {
+		foreach ( self::$dependent_slugs as $plugin_file ) {
 			add_filter( 'network_admin_plugin_action_links_' . $plugin_file, array( __CLASS__, 'add_manage_dependencies_action_link' ) );
 		}
 	}
@@ -325,7 +322,7 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 			'requires'          => $args['RequiresWP'],
 			'tested'            => '',
 			'requires_php'      => $args['RequiresPHP'],
-			'requires_plugins'  => $dependencies,
+			'requires_plugins'  => is_array( $dependencies ) ? $dependencies : explode( ',', $dependencies ),
 			'sections'          => array(
 				'description'  => $args['Description'],
 				'installation' => __( 'Ask the plugin developer where to download and install this plugin dependency.', 'advanced-plugin-dependencies' ),
@@ -385,7 +382,7 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 	public static function upgrader_package_options( $options ) {
 		if ( isset( $options['hook_extra']['temp_backup'] ) ) {
 			$options['hook_extra']['slug'] = $options['hook_extra']['temp_backup']['slug'];
-		} else {
+		} elseif ( isset( self::$args->slug ) ) {
 			$options['hook_extra']['slug'] = self::$args->slug;
 		}
 		remove_filter( 'upgrader_package_options', array( __CLASS__, 'upgrader_package_options' ), 10 );
