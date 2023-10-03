@@ -45,7 +45,6 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 		if ( is_admin() ) {
 			add_filter( 'plugins_api_result', array( __CLASS__, 'plugins_api_result' ), 10, 3 );
 			add_filter( 'upgrader_post_install', array( __CLASS__, 'fix_plugin_containing_directory' ), 10, 3 );
-			add_filter( 'plugin_install_description', array( __CLASS__, 'add_dependents_to_dependencies_tab_plugin_cards' ), 10, 2 );
 			add_filter( 'wp_admin_notice_markup', array( __CLASS__, 'dependency_notice_with_link' ), 10, 1 );
 			add_action( 'admin_init', array( __CLASS__, 'modify_plugin_row' ), 15 );
 
@@ -212,45 +211,7 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 	}
 
 	/**
-	 * Adds dependents to a plugin card on the Dependencies tab.
-	 *
-	 * @param string $description Plugin card description.
-	 * @param array  $plugin      An array of plugin data. See {@see plugins_api()}
-	 *                           for the list of possible values.
-	 * @return string The modified plugin card description.
-	 */
-	public static function add_dependents_to_dependencies_tab_plugin_cards( $description, $plugin ) {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$tab = isset( $_GET['tab'] ) ? sanitize_title_with_dashes( wp_unslash( $_GET['tab'] ) ) : '';
-		if ( 'dependencies' !== $tab ) {
-			return $description;
-		}
-
-		$processor = WP_HTML_Processor::createFragment( $description );
-		if ( $processor->next_tag( array( 'class' => 'plugin-dependencies' ) ) ) {
-			$processor->add_class( 'hidden' );
-			$description = $processor->get_updated_html();
-		}
-
-		$row        = '<div class="plugin-dependency"><span class="plugin-dependency-name">%s</span></div>';
-		$dependents = self::get_dependents( $plugin['slug'] );
-
-		$dependents_list = '';
-		foreach ( $dependents as $dependent ) {
-			$dependents_list .= sprintf( $row, esc_html( self::$plugins[ $dependent ]['Name'] ) );
-		}
-
-		$dependents_notice = sprintf(
-			'<div class="plugin-dependencies"><p class="plugin-dependencies-explainer-text">%s</p> %s</div>',
-			'<strong>' . __( 'Required by:' ) . '</strong>',
-			$dependents_list
-		);
-
-		return $description . $dependents_notice;
-	}
-
-	/**
-	 * Add 'Dependencies' link to install plugin tab in plugin row action links.
+	 * Add 'Manage Dependencies' link in plugin row action links.
 	 *
 	 * @param array $actions     Plugin action links.
 	 * @return array
@@ -265,116 +226,6 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 		}
 
 		return $actions;
-	}
-
-	/**
-	 * Displays an admin notice if dependencies are not installed.
-	 *
-	 * @since 6.4.0
-	 *
-	 * @global $pagenow Current page.
-	 */
-	public static function display_admin_notice_for_unmet_dependencies() {
-		global $pagenow;
-
-		// Exit early if user unable to act on notice.
-		if ( ! current_user_can( 'install_plugins' ) ) {
-			return;
-		}
-
-		// Only display on specific pages.
-		if ( in_array( $pagenow, array( 'plugin-install.php', 'plugins.php' ), true ) ) {
-			/*
-			 * Plugin deactivated if dependencies not met.
-			 * Transient on a 10 second timeout.
-			 */
-			$deactivate_requires = get_site_transient( 'wp_plugin_dependencies_deactivated_plugins' );
-			if ( ! empty( $deactivate_requires ) ) {
-				foreach ( $deactivate_requires as $deactivated ) {
-					$deactivated_plugins[] = self::$plugins[ $deactivated ]['Name'];
-				}
-				$deactivated_plugins = implode( ', ', $deactivated_plugins );
-				wp_admin_notice(
-					sprintf(
-					/* translators: 1: plugin names, 2: link to Dependencies install page */
-						esc_html__( '%1$s plugin(s) have been deactivated. There are uninstalled or inactive dependencies. Go to the %2$s install page.' ),
-						'<strong>' . esc_html( $deactivated_plugins ) . '</strong>',
-						wp_kses_post( self::get_dependency_link( true ) )
-					),
-					array(
-						'type'        => 'error',
-						'dismissible' => true,
-					)
-				);
-			} else {
-				// More dependencies to install.
-				$installed_slugs = array_map( 'dirname', array_keys( self::$plugins ) );
-				$intersect       = array_intersect( self::$dependency_slugs, $installed_slugs );
-				asort( $intersect );
-				if ( $intersect !== self::$dependency_slugs ) {
-					// Display link (if not already on Dependencies install page).
-					// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-					$tab      = isset( $_GET['tab'] ) ? sanitize_title_with_dashes( wp_unslash( $_GET['tab'] ) ) : '';
-					$tab_link = '';
-					if ( 'plugin-install.php' !== $pagenow || 'dependencies' !== $tab ) {
-						$tab_link = ' ' . sprintf(
-							/* translators: 1: link to Dependencies install page */
-							__( 'Go to the %s install page.', 'advanced-plugin-dependencies' ),
-							wp_kses_post( self::get_dependency_link( true ) ),
-							'</a>'
-						);
-					}
-					wp_admin_notice(
-						__( 'There are additional plugin dependencies that must be installed.' ) . $tab_link,
-						array(
-							'type'        => 'warning',
-							'dismissible' => true,
-						)
-					);
-				}
-			}
-
-			$circular_dependencies = self::get_circular_dependencies();
-
-			// Remove elements with duplicate circular dependency pair.
-			if ( is_array( $circular_dependencies ) ) {
-				$circular_dependencies = array_unique( $circular_dependencies, SORT_REGULAR );
-				$circular_dependencies = array_filter(
-					$circular_dependencies,
-					static function ( $deps ) {
-						return isset( $deps[1] ) && $deps[0] !== $deps[1];
-					}
-				);
-			}
-
-			if ( ! empty( $circular_dependencies ) && count( $circular_dependencies ) > 1 ) {
-				$circular_dependencies = array_unique( $circular_dependencies, SORT_REGULAR );
-				// Build output lines.
-				$circular_dependency_lines = array();
-				foreach ( $circular_dependencies as $circular_dependency ) {
-					$first_filepath              = self::$plugin_dirnames[ $circular_dependency[0] ];
-					$second_filepath             = self::$plugin_dirnames[ $circular_dependency[1] ];
-					$circular_dependency_lines[] = sprintf(
-						/* translators: 1: First plugin name, 2: Second plugin name. */
-						__( '%1$s -> %2$s' ),
-						'<strong>' . esc_html( self::$plugins[ $first_filepath ]['Name'] ) . '</strong>',
-						'<strong>' . esc_html( self::$plugins[ $second_filepath ]['Name'] ) . '</strong>'
-					);
-				}
-
-				wp_admin_notice(
-					sprintf(
-						/* translators: circular dependencies names */
-						__( 'You have circular dependencies with the following plugins: %s' ),
-						'<br>' . implode( '<br>', $circular_dependency_lines )
-					) . '<br>' . __( 'Please contact the plugin developers and make them aware.' ),
-					array(
-						'type'        => 'warning',
-						'dismissible' => true,
-					)
-				);
-			}
-		}
 	}
 
 	/**
