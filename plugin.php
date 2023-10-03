@@ -13,7 +13,7 @@
  * Plugin URI:  https://wordpress.org/plugins/advanced-plugin-dependencies
  * Description:  Add plugin install dependencies tab, support for non dot org plugins, and information about dependencies.
  * Author: Andy Fragen, Colin Stewart, Paul Biron
- * Version: 0.8.0
+ * Version: 0.8.3
  * License: MIT
  * Network: true
  * Requires at least: 6.4
@@ -43,6 +43,7 @@ class Init {
 	 * @return void
 	 */
 	public function __construct() {
+		require_once \WP_PLUGIN_DIR . '/wp-plugin-dependencies/src/wp-includes/class-wp-plugin-dependencies.php'; // TODO: remove after commit.
 		require_once __DIR__ . '/src/advanced-plugin-dependencies.php';
 
 		add_filter( 'install_plugins_tabs', array( $this, 'add_install_tab' ), 10, 1 );
@@ -93,17 +94,12 @@ class Init {
 	}
 }
 
-add_action(
-	'plugins_loaded',
-	static function () {
-		if ( ! class_exists( 'WP_Plugin_Dependencies' ) ) {
-			if ( ! function_exists( 'deactivate_plugins' ) ) {
-				require_once ABSPATH . 'wp-admin/includes/plugin.php';
-			}
-			deactivate_plugins( __FILE__ );
-			return;
-		}
-
-		new Init();
-	}
-);
+// TODO: add after commit.
+// if ( ! class_exists( 'WP_Plugin_Dependencies')) {
+require_once ABSPATH . 'wp-admin/includes/plugin.php';
+if ( ! is_plugin_active( 'wp-plugin-dependencies/plugin.php' ) ) {
+	deactivate_plugins( __FILE__ );
+	return;
+}
+new Init();
+// }
