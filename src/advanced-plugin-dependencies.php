@@ -47,7 +47,9 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 			add_filter( 'upgrader_post_install', array( __CLASS__, 'fix_plugin_containing_directory' ), 10, 3 );
 			add_filter( 'wp_admin_notice_markup', array( __CLASS__, 'dependency_notice_with_link' ), 10, 1 );
 			add_action( 'admin_init', array( __CLASS__, 'modify_plugin_row' ), 15 );
+			add_filter( 'wp_plugin_dependencies_slug', array( __CLASS__, 'split_slug' ), 10, 1 );
 
+			parent::read_dependencies_from_plugin_headers();
 			self::detect_non_dotorg_dependencies();
 			self::add_non_dotorg_dependency_api_data();
 		}
