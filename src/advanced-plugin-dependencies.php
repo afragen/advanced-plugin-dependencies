@@ -134,7 +134,7 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 	 * Fetches non-WordPress.org dependency data from their designated endpoints.
 	 *
 	 * @param string $dependency The dependency's slug.
-	 * @return void
+	 * @return array|WP_Error
 	 */
 	protected static function fetch_non_dotorg_dependency_data( $dependency ) {
 		$response = array();
@@ -285,7 +285,7 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 	 * Return empty plugins_api() response.
 	 *
 	 * @param string $slug Plugin slug.
-	 * @param array  $args Array of plugin
+	 * @param array  $args Array of plugin.
 	 * @return array
 	 */
 	private static function get_empty_plugins_api_response( $slug, $args = array() ) {
