@@ -205,30 +205,22 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 	 */
 	public static function modify_plugin_row() {
 		global $pagenow;
-		if ( 'plugins.php' !== $pagenow ) {
-			return;
-		}
 
-		foreach ( self::$dependent_slugs as $plugin_file ) {
-			add_filter( 'plugin_action_links_' . $plugin_file, array( __CLASS__, 'add_manage_dependencies_action_link' ) );
-		}
-		foreach ( self::$dependent_slugs as $plugin_file ) {
-			add_filter( 'network_admin_plugin_action_links_' . $plugin_file, array( __CLASS__, 'add_manage_dependencies_action_link' ) );
+		if ( 'plugins.php' === $pagenow ) {
+			foreach ( self::$dependent_slugs as $plugin_file ) {
+				add_filter( is_multisite() ? 'network_admin_' : '' . "plugin_action_links_$plugin_file", array( __CLASS__, 'add_manage_dependencies_action_link' ) );
+			}
 		}
 	}
 
 	/**
 	 * Add 'Manage Dependencies' link in plugin row action links.
 	 *
-	 * @param array $actions     Plugin action links.
+	 * @param array $actions Plugin action links.
 	 * @return array
 	 */
 	public static function add_manage_dependencies_action_link( $actions ) {
-		if ( ! isset( $actions['activate'] ) ) {
-			return $actions;
-		}
-
-		if ( str_contains( $actions['activate'], 'Activate' ) ) {
+		if ( isset( $actions['activate'] ) && str_contains( $actions['activate'], 'Activate' ) ) {
 			$actions['dependencies'] = self::get_dependency_link();
 		}
 
