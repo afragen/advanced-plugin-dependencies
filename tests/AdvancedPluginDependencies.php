@@ -45,6 +45,7 @@ class Tests_Admin_WpPluginDependencies extends WP_UnitTestCase {
 	public function test_split_slug_should_return_correct_slug( $slug, $expected ) {
 		//$this->markTestSkipped( 'must be revisited.' );
 
+		$plugin_dependencies = new WP_Plugin_Dependencies();
 		$advanced_dependencies = new Advanced_Plugin_Dependencies();
 		$split_slug            = $this->make_method_accessible( $advanced_dependencies, 'split_slug' );
 
