@@ -43,11 +43,6 @@ class Tests_Admin_AdvancedPluginDependencies extends WP_UnitTestCase {
 	 * @param array  $expected A string of expected slug results.
 	 */
 	public function test_split_slug_should_return_correct_slug( $slug, $expected ) {
-		//$this->markTestSkipped( 'must be revisited.' );
-
-		//$advanced_dependencies = new Advanced_Plugin_Dependencies();
-		//$split_slug            = $this->make_method_accessible( $advanced_dependencies, 'split_slug' );
-
 		// The slug is trimmed before being passed to the 'wp_plugin_dependencies_slug' filter.
 		$actual = Advanced_Plugin_Dependencies::split_slug( trim( $slug ) );
 		$this->assertSame( $expected, $actual );
