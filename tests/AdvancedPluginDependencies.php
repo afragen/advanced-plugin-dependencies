@@ -1,8 +1,5 @@
 <?php
-
-if ( ! class_exists( 'WP_Plugin_Dependencies' ) ) {
-	class WP_Plugin_Dependencies {}
-}
+class WP_Plugin_Dependencies {}
 
 /**
  * Test Advanced_Plugin_Dependencies class.
