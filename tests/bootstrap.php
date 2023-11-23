@@ -12,8 +12,10 @@ if ( ! $_tests_dir ) {
 
 require_once $_tests_dir . '/includes/functions.php';
 
+class WP_Plugin_Dependencies {}
+
 function _manually_load_plugin() {
-	require dirname( __DIR__ ) . '/plugin.php';
+	require dirname( __DIR__ ) . '/src/advanced-plugin-dependencies.php';
 }
 tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
 
