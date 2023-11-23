@@ -1,13 +1,11 @@
 <?php
-class WP_Plugin_Dependencies {}
-
 /**
  * Test Advanced_Plugin_Dependencies class.
  *
  * @package Advanced_Plugin_Dependencies
  *
  */
-class Tests_Admin_WpPluginDependencies extends WP_UnitTestCase {
+class Tests_Admin_AdvancedPluginDependencies extends WP_UnitTestCase {
 	/**
 	 * Makes a class property accessible.
 	 *
@@ -45,10 +43,11 @@ class Tests_Admin_WpPluginDependencies extends WP_UnitTestCase {
 	 * @param array  $expected A string of expected slug results.
 	 */
 	public function test_split_slug_should_return_correct_slug( $slug, $expected ) {
-		//$this->markTestSkipped( 'must be revisited.' );
 
 		$advanced_dependencies = new Advanced_Plugin_Dependencies();
 		$split_slug            = $this->make_method_accessible( $advanced_dependencies, 'split_slug' );
+
+		//$this->markTestSkipped( 'must be revisited.' );
 
 		// The slug is trimmed before being passed to the 'wp_plugin_dependencies_slug' filter.
 		$actual = $split_slug->invoke( $advanced_dependencies, trim( $slug ) );
