@@ -12,6 +12,7 @@ if ( ! $_tests_dir ) {
 
 require_once $_tests_dir . '/includes/functions.php';
 
+// Need to declare WP_Plugin_Dependencies while not in core.
 class WP_Plugin_Dependencies {}
 
 function _manually_load_plugin() {
