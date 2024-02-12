@@ -119,7 +119,7 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 	protected static function add_non_dotorg_dependency_api_data() {
 		$short_description = __( "You will need to manually install this dependency. Please contact the plugin's developer and ask them to add plugin dependencies support and for information on how to install the this dependency.", 'advanced-plugin-dependencies' );
 		foreach ( self::$dependency_slugs as $slug ) {
-			if ( ! array_key_exists( $slug, self::$dependency_api_data ) ) {
+			if ( is_array( self::$dependency_api_data ) && ! array_key_exists( $slug, self::$dependency_api_data ) ) {
 				self::$non_dotorg_dependency_slugs[] = $slug;
 				self::$dependency_api_data[ $slug ]  = self::get_empty_plugins_api_response( $slug );
 			}
