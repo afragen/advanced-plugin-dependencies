@@ -56,7 +56,8 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 	public static function initialize() {
 		if ( is_admin() && ! self::is_heartbeat() ) {
 			add_filter( 'plugins_api_result', array( __CLASS__, 'plugins_api_result' ), 10, 3 );
-			add_filter( 'upgrader_post_install', array( __CLASS__, 'fix_plugin_containing_directory' ), 10, 3 );
+			// add_filter( 'upgrader_post_install', array( __CLASS__, 'fix_plugin_containing_directory' ), 10, 3 );
+			add_filter( 'upgrader_source_selection', array( __CLASS__, 'fix_upgrader_source_selection' ), 10, 4 );
 			add_filter( 'wp_admin_notice_markup', array( __CLASS__, 'dependency_notice_with_link' ), 10, 1 );
 			add_action( 'admin_init', array( __CLASS__, 'modify_plugin_row' ), 15 );
 			add_filter( 'wp_plugin_dependencies_slug', array( __CLASS__, 'split_slug' ), 10, 1 );
@@ -433,6 +434,32 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 		}
 
 		return $response;
+	}
+
+	/**
+	 * Fix $source for non-dot org plugins.
+	 *
+	 * @param string       $source          File path of $ource.
+	 * @param string       $remote_source   File path of $remote_source.
+	 * @param Plugin|Theme $upgrader_object An Upgrader object.
+	 * @param array        $hook_extra      Array of $hook_extra data.
+	 * @return string
+	 */
+	public static function fix_upgrader_source_selection( $source, $remote_source, $upgrader_object, $hook_extra ) {
+		if ( isset( $hook_extra['slug'] ) && $hook_extra['slug'] === self::$args->slug ) {
+			$new_source = trailingslashit( $remote_source ) . $hook_extra['slug'] . '/';
+
+			$from = untrailingslashit( $source );
+			$to   = $new_source;
+
+			if ( trailingslashit( strtolower( $from ) ) !== trailingslashit( strtolower( $to ) ) ) {
+				move_dir( $from, $to, true );
+			}
+
+			return $new_source;
+		}
+
+		return $source;
 	}
 }
 
