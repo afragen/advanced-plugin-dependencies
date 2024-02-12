@@ -125,6 +125,7 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 			}
 		}
 		foreach ( self::$non_dotorg_dependency_slugs as $slug ) {
+			$dependency_data = array();
 			$dependency_data = (array) self::fetch_non_dotorg_dependency_data( $slug );
 			if ( ! isset( $dependency_data['name'] ) ) {
 				continue;
