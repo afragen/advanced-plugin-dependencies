@@ -4,7 +4,7 @@
  *
  * @package WordPress
  * @subpackage Administration
- * @since 6.4.0
+ * @since 6.5.0
  */
 
 /**
@@ -37,19 +37,32 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 	private static $non_dotorg_dependency_slugs = array();
 
 	/**
+	 * Check for heartbeat.
+	 *
+	 * @return bool
+	 */
+	private static function is_heartbeat() {
+		if ( isset( $_POST['action'], $_POST['_nonce'] ) && wp_verify_nonce( sanitize_key( wp_unslash( $_POST['_nonce'] ) ), 'heartbeat-nonce' ) ) {
+			return 'heartbeat' === $_POST['action'];
+		}
+			return false;
+	}
+
+	/**
 	 * Initialize, load filters, and get started.
 	 *
 	 * @return void
 	 */
 	public static function initialize() {
-		if ( is_admin() ) {
+		if ( is_admin() && ! self::is_heartbeat() ) {
 			add_filter( 'plugins_api_result', array( __CLASS__, 'plugins_api_result' ), 10, 3 );
 			add_filter( 'upgrader_post_install', array( __CLASS__, 'fix_plugin_containing_directory' ), 10, 3 );
 			add_filter( 'wp_admin_notice_markup', array( __CLASS__, 'dependency_notice_with_link' ), 10, 1 );
-			add_action( 'admin_init', array( __CLASS__, 'modify_plugin_row' ), 10 );
+			add_action( 'admin_init', array( __CLASS__, 'modify_plugin_row' ), 15 );
 			add_filter( 'wp_plugin_dependencies_slug', array( __CLASS__, 'split_slug' ), 10, 1 );
 
 			parent::read_dependencies_from_plugin_headers();
+			parent::get_dependency_api_data();
 			self::detect_non_dotorg_dependencies();
 			self::add_non_dotorg_dependency_api_data();
 		}
@@ -134,7 +147,7 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 	 * Fetches non-WordPress.org dependency data from their designated endpoints.
 	 *
 	 * @param string $dependency The dependency's slug.
-	 * @return array|WP_Error
+	 * @return array|\WP_Error
 	 */
 	protected static function fetch_non_dotorg_dependency_data( $dependency ) {
 		$response = array();
@@ -190,7 +203,7 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 			$res->plugins = self::$dependency_api_data;
 		}
 
-		if ( is_wp_error( $res ) ) {
+		if ( is_wp_error( $res ) && isset( self::$dependency_api_data[ $args->slug ] ) ) {
 			$res = (object) self::$dependency_api_data[ $args->slug ];
 		}
 		return $res;
@@ -205,11 +218,15 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 	 */
 	public static function modify_plugin_row() {
 		global $pagenow;
+		if ( 'plugins.php' !== $pagenow ) {
+			return;
+		}
 
-		if ( 'plugins.php' === $pagenow ) {
-			foreach ( array_keys( self::$dependencies ) as $plugin_file ) {
-				add_filter( is_multisite() ? 'network_admin_' : '' . "plugin_action_links_{$plugin_file}", array( __CLASS__, 'add_manage_dependencies_action_link' ) );
-			}
+		foreach ( self::$dependent_slugs as $plugin_file ) {
+			add_filter( 'plugin_action_links_' . $plugin_file, array( __CLASS__, 'add_manage_dependencies_action_link' ) );
+		}
+		foreach ( self::$dependent_slugs as $plugin_file ) {
+			add_filter( 'network_admin_plugin_action_links_' . $plugin_file, array( __CLASS__, 'add_manage_dependencies_action_link' ) );
 		}
 	}
 
@@ -220,7 +237,11 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 	 * @return array
 	 */
 	public static function add_manage_dependencies_action_link( $actions ) {
-		if ( isset( $actions['activate'] ) && str_contains( $actions['activate'], 'Activate' ) ) {
+		if ( ! isset( $actions['activate'] ) ) {
+			return $actions;
+		}
+
+		if ( str_contains( $actions['activate'], 'Activate' ) ) {
 			$actions['dependencies'] = self::get_dependency_link();
 		}
 
@@ -232,7 +253,7 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 	 *
 	 * @global $pagenow Current page.
 	 *
-	 * @param string $markup  The HTML markup for the admin notice.
+	 * @param string $markup The HTML markup for the admin notice.
 	 *
 	 * @return string
 	 */
