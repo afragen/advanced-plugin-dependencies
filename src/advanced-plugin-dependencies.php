@@ -205,7 +205,8 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 		}
 
 		if ( is_wp_error( $res ) && isset( self::$dependency_api_data[ $args->slug ] ) ) {
-			$res = (object) self::$dependency_api_data[ $args->slug ];
+			self::$args = $args;
+			$res        = (object) self::$dependency_api_data[ $args->slug ];
 		}
 		return $res;
 	}
