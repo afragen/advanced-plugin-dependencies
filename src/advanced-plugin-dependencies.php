@@ -257,7 +257,6 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 	 * @global $pagenow Current page.
 	 *
 	 * @param string $markup The HTML markup for the admin notice.
-	 *
 	 * @return string
 	 */
 	public static function dependency_notice_with_link( $markup ) {
@@ -365,7 +364,6 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 	 * Split slug into slug and endpoint.
 	 *
 	 * @param string $slug Slug.
-	 *
 	 * @return string
 	 */
 	public static function split_slug( $slug ) {
@@ -395,7 +393,6 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 	 * @see WP_Upgrader::run() for $options details.
 	 *
 	 * @param array $options Array of options.
-	 *
 	 * @return array
 	 */
 	public static function upgrader_package_options( $options ) {
