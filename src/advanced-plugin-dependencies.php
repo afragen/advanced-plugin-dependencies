@@ -419,7 +419,7 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 	 * @return string
 	 */
 	public static function fix_upgrader_source_selection( $source, $remote_source, $upgrader_object, $hook_extra ) {
-		if ( isset( $hook_extra['slug'] ) && $hook_extra['slug'] === self::$args->slug ) {
+		if ( isset( $hook_extra['slug'] ) ) {
 			$new_source = trailingslashit( $remote_source ) . $hook_extra['slug'] . '/';
 
 			$from = untrailingslashit( $source );
