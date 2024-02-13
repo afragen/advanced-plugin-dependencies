@@ -56,11 +56,11 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 	public static function initialize() {
 		if ( is_admin() && ! self::is_heartbeat() ) {
 			add_filter( 'plugins_api_result', array( __CLASS__, 'plugins_api_result' ), 10, 3 );
-			// add_filter( 'upgrader_post_install', array( __CLASS__, 'fix_plugin_containing_directory' ), 10, 3 );
 			add_filter( 'upgrader_source_selection', array( __CLASS__, 'fix_upgrader_source_selection' ), 10, 4 );
 			add_filter( 'wp_admin_notice_markup', array( __CLASS__, 'dependency_notice_with_link' ), 10, 1 );
 			add_action( 'admin_init', array( __CLASS__, 'modify_plugin_row' ), 15 );
 			add_filter( 'wp_plugin_dependencies_slug', array( __CLASS__, 'split_slug' ), 10, 1 );
+			add_filter( 'pre_update_option_plugin_data', array( __CLASS__, 'plugin_data_option' ), 10, 2 );
 
 			parent::read_dependencies_from_plugin_headers();
 			parent::get_dependency_api_data();
@@ -410,33 +410,6 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 	}
 
 	/**
-	 * Filter `upgrader_post_install` for plugin dependencies.
-	 *
-	 * For correct renaming of downloaded plugin directory,
-	 * some downloads may not be formatted correctly.
-	 *
-	 * @param bool  $response   Default is true.
-	 * @param array $hook_extra Array of data from hook.
-	 * @param array $result     Array of data for installation.
-	 *
-	 * @return bool
-	 */
-	public static function fix_plugin_containing_directory( $response, $hook_extra, $result ) {
-		if ( ! isset( $hook_extra['slug'] ) ) {
-			return $response;
-		}
-
-		$from = untrailingslashit( $result['destination'] );
-		$to   = trailingslashit( $result['local_destination'] ) . $hook_extra['slug'];
-
-		if ( trailingslashit( strtolower( $from ) ) !== trailingslashit( strtolower( $to ) ) ) {
-			$response = move_dir( $from, $to, true );
-		}
-
-		return $response;
-	}
-
-	/**
 	 * Fix $source for non-dot org plugins.
 	 *
 	 * @param string       $source          File path of $ource.
@@ -460,6 +433,21 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 		}
 
 		return $source;
+	}
+
+	/**
+	 * Ensure plugin_data option has complete data.
+	 *
+	 * @param array $value     Current option value.
+	 * @param array $old_value Old option value.
+	 * @return array
+	 */
+	public static function plugin_data_option( $value, $old_value ) {
+		if ( $value !== $old_value ) {
+			$plugins = get_plugins();
+			$value   = count( $old_value ) === count( $plugins ) ? $old_value : $value;
+		}
+		return $value;
 	}
 }
 
