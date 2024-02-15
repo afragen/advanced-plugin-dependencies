@@ -60,7 +60,6 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 			add_filter( 'wp_admin_notice_markup', array( __CLASS__, 'dependency_notice_with_link' ), 10, 1 );
 			add_action( 'admin_init', array( __CLASS__, 'modify_plugin_row' ), 15 );
 			add_filter( 'wp_plugin_dependencies_slug', array( __CLASS__, 'split_slug' ), 10, 1 );
-			add_filter( 'pre_update_option_plugin_data', array( __CLASS__, 'plugin_data_option' ), 10, 2 );
 
 			parent::read_dependencies_from_plugin_headers();
 			parent::get_dependency_api_data();
@@ -430,21 +429,6 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 		}
 
 		return $source;
-	}
-
-	/**
-	 * Ensure plugin_data option has complete data.
-	 *
-	 * @param array $value     Current option value.
-	 * @param array $old_value Old option value.
-	 * @return array
-	 */
-	public static function plugin_data_option( $value, $old_value ) {
-		if ( $value !== $old_value ) {
-			$plugins = get_plugins();
-			$value   = count( $old_value ) === count( $plugins ) ? $old_value : $value;
-		}
-		return $value;
 	}
 }
 
