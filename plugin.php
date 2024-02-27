@@ -11,13 +11,13 @@
 /**
  * Plugin Name: Advanced Plugin Dependencies
  * Plugin URI:  https://wordpress.org/plugins/advanced-plugin-dependencies
- * Description:  Add plugin install dependencies tab, support for non dot org plugins, and information about dependencies.
+ * Description:  Add plugin install dependencies tab, support for non dot org plugin cards, and information about dependencies.
  * Author: Andy Fragen, Colin Stewart, Paul Biron
- * Version: 0.7.0
+ * Version: 0.8.3.7
  * License: MIT
  * Network: true
- * Requires at least: 6.4
- * Requires PHP: 7.2
+ * Requires at least: 6.5
+ * Requires PHP: 8.0
  * GitHub Plugin URI: https://github.com/afragen/advanced-plugin-dependencies
  * Primary Branch: main
  */
@@ -65,7 +65,6 @@ class Init {
 	 * Add 'Dependencies' tab to 'Plugin > Add New'.
 	 *
 	 * @param array $tabs Array of plugin install tabs.
-	 *
 	 * @return array
 	 */
 	public function add_install_tab( $tabs ) {
@@ -78,7 +77,6 @@ class Init {
 	 * Add args to plugins_api().
 	 *
 	 * @param array $args Array of arguments to plugins_api().
-	 *
 	 * @return array
 	 */
 	public function add_install_dependency_args( $args ) {
@@ -95,15 +93,7 @@ class Init {
 
 add_action(
 	'plugins_loaded',
-	static function () {
-		if ( ! class_exists( 'WP_Plugin_Dependencies' ) ) {
-			if ( ! function_exists( 'deactivate_plugins' ) ) {
-				require_once ABSPATH . 'wp-admin/includes/plugin.php';
-			}
-			deactivate_plugins( __FILE__ );
-			return;
-		}
-
+	function () {
 		new Init();
 	}
 );
