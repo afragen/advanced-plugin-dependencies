@@ -30,6 +30,6 @@ PRs should be made against the `develop` branch.
 
 ## Screenshots
 
-1. Plugin is a Dependency and Plugin needing Dependencies
-2. Plugin with Dependencies
-3. Plugin Dependencies tab
+1. Admin notice with link to Dependencies tab
+2. Add Plugin page Dependencies tab with plugin cards
+3. Plugins page view
