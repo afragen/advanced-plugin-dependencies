@@ -9,9 +9,11 @@ Requires PHP: 8.0
 Tested up to: 6.5
 Stable tag: x.x.x
 
+An add-on the the Plugin Dependencies feature. Adds a Dependencies tab in the plugin install page.  Adds support for non dot org plugin cards.
+
 ## Description
 
-Adds a Dependencies tab in the plugin install page. If a requiring plugin does not have all its dependencies installed and active, it will not activate. An add-on the the Plugin Dependencies feature. Adds support for non dot org plugin cards.
+An add-on the the Plugin Dependencies feature. Adds a Dependencies tab in the plugin install page. Adds support for non dot org plugin cards. If a requiring plugin does not have all its dependencies installed and active, it will not activate.
 
 * Plugins not in dot org may use the format `<slug>|<URI>` in the **Requires Plugins** header. `URI` should return a JSON compatible with the `plugins_api()` response or be a JSON file at the plugin root, `<slug>|<slug>.json`.
 * Adds a new view/tab to plugins install page ( **Plugins > Add New** ) titled **Dependencies** that contains plugin cards for all plugin dependencies.
@@ -28,6 +30,6 @@ PRs should be made against the `develop` branch.
 
 ## Screenshots
 
-1. Plugin is a Dependency and Plugin needing Dependencies
-2. Plugin with Dependencies
-3. Plugin Dependencies tab
+1. Admin notice with link to Dependencies tab
+2. Add Plugin page Dependencies tab with plugin cards
+3. Plugins page view

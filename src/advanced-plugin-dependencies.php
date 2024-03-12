@@ -268,7 +268,7 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 			return $markup;
 		}
 
-		$message = __( 'There are additional plugin dependencies that must be installed.' );
+		$message = __( 'Some required plugins are missing or inactive.' );
 
 		/* translators: 1: link to Dependencies install page */
 		$link_message = sprintf( __( 'Go to the %s install page.', 'advanced-plugin-dependencies' ), self::get_dependency_link( true ) );
