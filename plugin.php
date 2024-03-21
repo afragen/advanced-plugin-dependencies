@@ -68,7 +68,7 @@ class Init {
 	 * @return array
 	 */
 	public function add_install_tab( $tabs ) {
-		$tabs['dependencies'] = _x( 'Dependencies', 'Plugin Installer' );
+		$tabs['dependencies'] = esc_html_x( 'Dependencies', 'Plugin Installer' );
 
 		return $tabs;
 	}

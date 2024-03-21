@@ -117,7 +117,7 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 	 * @return void
 	 */
 	protected static function add_non_dotorg_dependency_api_data() {
-		$short_description = __( "You will need to manually install this dependency. Please contact the plugin's developer and ask them to add plugin dependencies support and for information on how to install the this dependency.", 'advanced-plugin-dependencies' );
+		$short_description = esc_html__( "You will need to manually install this dependency. Please contact the plugin's developer and ask them to add plugin dependencies support and for information on how to install the this dependency.", 'advanced-plugin-dependencies' );
 		foreach ( self::$dependency_slugs as $slug ) {
 			if ( is_array( self::$dependency_api_data ) && ! array_key_exists( $slug, self::$dependency_api_data ) ) {
 				self::$non_dotorg_dependency_slugs[] = $slug;
@@ -277,7 +277,7 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 			$markup = str_replace( $message, "$message $link_message", $markup );
 		}
 
-		return $markup; }
+		return wp_kses_post( $markup ); }
 
 	/**
 	 * Get Dependencies link.
@@ -292,7 +292,7 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 			$link_text
 		);
 
-		return $link;
+		return wp_kses_post( $link );
 	}
 
 	/**
@@ -326,7 +326,7 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 			$file = $dependencies[ $slug ];
 		}
 		$args              = $file ? self::$plugins[ $file ] : $args;
-		$short_description = __( "You will need to manually install this dependency. Please contact the plugin's developerand ask them to add plugin dependencies support and for information on how to install the this dependency.", 'advanced-plugin-dependencies' );
+		$short_description = esc_html__( "You will need to manually install this dependency. Please contact the plugin's developerand ask them to add plugin dependencies support and for information on how to install the this dependency.", 'advanced-plugin-dependencies' );
 		$dependencies      = isset( self::$plugin_dirnames[ $slug ] ) && ! empty( self::$plugins[ self::$plugin_dirnames[ $slug ] ]['RequiresPlugins'] )
 			? self::$plugins[ self::$plugin_dirnames[ $slug ] ]['RequiresPlugins'] : array();
 		$response          = array(
@@ -342,7 +342,7 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 			'requires_plugins'  => is_array( $dependencies ) ? $dependencies : explode( ',', $dependencies ),
 			'sections'          => array(
 				'description'  => $args['Description'],
-				'installation' => __( 'Ask the plugin developer where to download and install this plugin dependency.', 'advanced-plugin-dependencies' ),
+				'installation' => esc_html__( 'Ask the plugin developer where to download and install this plugin dependency.', 'advanced-plugin-dependencies' ),
 			),
 			'short_description' => $short_description,
 			'download_link'     => '',
