@@ -13,7 +13,7 @@
  * Plugin URI:  https://wordpress.org/plugins/advanced-plugin-dependencies
  * Description:  Add plugin install dependencies tab, support for non dot org plugin cards, and information about dependencies.
  * Author: Andy Fragen, Colin Stewart, Paul Biron
- * Version: 0.8.4
+ * Version: 0.9.0
  * License: MIT
  * Network: true
  * Requires at least: 6.5
@@ -68,7 +68,7 @@ class Init {
 	 * @return array
 	 */
 	public function add_install_tab( $tabs ) {
-		$tabs['dependencies'] = _x( 'Dependencies', 'Plugin Installer' );
+		$tabs['dependencies'] = esc_html_x( 'Dependencies', 'Plugin Installer' );
 
 		return $tabs;
 	}
