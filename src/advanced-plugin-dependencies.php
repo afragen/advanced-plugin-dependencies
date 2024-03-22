@@ -58,7 +58,6 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 			add_filter( 'plugins_api_result', array( __CLASS__, 'plugins_api_result' ), 10, 3 );
 			add_filter( 'upgrader_source_selection', array( __CLASS__, 'fix_upgrader_source_selection' ), 10, 4 );
 			add_filter( 'wp_admin_notice_markup', array( __CLASS__, 'dependency_notice_with_link' ), 10, 1 );
-			add_action( 'admin_init', array( __CLASS__, 'modify_plugin_row' ), 15 );
 			add_filter( 'wp_plugin_dependencies_slug', array( __CLASS__, 'split_slug' ), 10, 1 );
 
 			parent::read_dependencies_from_plugin_headers();
@@ -212,45 +211,6 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 	}
 
 	/**
-	 * Modify the plugin row.
-	 *
-	 * @global $pagenow Current page.
-	 *
-	 * @return void
-	 */
-	public static function modify_plugin_row() {
-		global $pagenow;
-		if ( 'plugins.php' !== $pagenow ) {
-			return;
-		}
-
-		foreach ( self::$dependent_slugs as $plugin_file ) {
-			add_filter( 'plugin_action_links_' . $plugin_file, array( __CLASS__, 'add_manage_dependencies_action_link' ) );
-		}
-		foreach ( self::$dependent_slugs as $plugin_file ) {
-			add_filter( 'network_admin_plugin_action_links_' . $plugin_file, array( __CLASS__, 'add_manage_dependencies_action_link' ) );
-		}
-	}
-
-	/**
-	 * Add 'Manage Dependencies' link in plugin row action links.
-	 *
-	 * @param array $actions Plugin action links.
-	 * @return array
-	 */
-	public static function add_manage_dependencies_action_link( $actions ) {
-		if ( ! isset( $actions['activate'] ) ) {
-			return $actions;
-		}
-
-		if ( str_contains( $actions['activate'], 'Activate' ) ) {
-			$actions['dependencies'] = self::get_dependency_link();
-		}
-
-		return $actions;
-	}
-
-	/**
 	 * Switch admin notice markup with markup including link to Dependencies tab.
 	 *
 	 * @global $pagenow Current page.
@@ -270,8 +230,8 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 
 		$message = __( 'Some required plugins are missing or inactive.' );
 
-		/* translators: 1: link to Dependencies install page */
-		$link_message = sprintf( __( 'Go to the %s install page.', 'advanced-plugin-dependencies' ), self::get_dependency_link( true ) );
+		/* translators: s: link to Dependencies install page */
+		$link_message = sprintf( __( 'Go to the %s install page.', 'advanced-plugin-dependencies' ), self::get_dependency_link() );
 
 		if ( str_contains( $markup, $message ) && ! str_contains( $markup, $link_message ) ) {
 			$markup = str_replace( $message, "$message $link_message", $markup );
@@ -282,14 +242,12 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 	/**
 	 * Get Dependencies link.
 	 *
-	 * @param bool $notice Usage in admin notice.
 	 * @return string
 	 */
-	private static function get_dependency_link( $notice = false ) {
-		$link_text = $notice ? __( 'Dependencies', 'advanced-plugin-dependencies' ) : __( 'Manage Dependencies', 'advanced-plugin-dependencies' );
-		$link      = sprintf(
-			'<a href=' . esc_url( network_admin_url( 'plugin-install.php?tab=dependencies' ) ) . ' aria-label="' . __( 'Go to Dependencies tab of Add Plugins page.', 'advanced-plugin-dependencies' ) . '">%s</a>',
-			$link_text
+	private static function get_dependency_link() {
+		$link = sprintf(
+			'<a href=' . network_admin_url( 'plugin-install.php?tab=dependencies' ) . ' aria-label="' . __( 'Go to Dependencies tab of Add Plugins page.', 'advanced-plugin-dependencies' ) . '">%s</a>',
+			__( 'Dependencies', 'advanced-plugin-dependencies' )
 		);
 
 		return wp_kses_post( $link );
