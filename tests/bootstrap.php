@@ -14,7 +14,7 @@ require_once $_tests_dir . '/includes/functions.php';
 
 // Need to declare WP_Plugin_Dependencies while not in core.
 if ( ! class_exists( 'WP_Plugin_Dependencies' ) ) {
-	require_once 'load-wpplugindependencies.php';
+	// require_once 'load-wpplugindependencies.php';
 }
 
 function _manually_load_plugin() {
