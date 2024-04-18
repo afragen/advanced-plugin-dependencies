@@ -275,7 +275,7 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 		if ( ! isset( $dependencies[ $slug ] ) ) {
 			$file = array_filter(
 				array_keys( self::$plugins ),
-				function ( $file ) use( $slug ) {
+				function ( $file ) use ( $slug ) {
 					return str_contains( $file, $slug );
 				}
 			);
