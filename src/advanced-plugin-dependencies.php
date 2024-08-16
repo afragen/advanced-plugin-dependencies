@@ -140,6 +140,7 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 			}
 			self::$dependency_api_data[ $slug ] = $dependency_data;
 		}
+		// Set transient for WP_Plugin_Dependencies.
 		set_site_transient( 'wp_plugin_dependencies_plugin_data', self::$dependency_api_data, 0 );
 	}
 
@@ -150,7 +151,12 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 	 * @return array|\WP_Error
 	 */
 	protected static function fetch_non_dotorg_dependency_data( $dependency ) {
-		$response = array();
+		// Get cached data.
+		$response = get_site_transient( "non_dot_org_dependency_data_{$dependency}" );
+		if ( ! $response ) {
+			return $response;
+		}
+
 		/**
 		 * Filter the REST enpoints used for lookup of plugins API data.
 		 *
@@ -177,6 +183,9 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 				break;
 			}
 		}
+
+		// Cache data for 12 hours.
+		set_site_transient( "non_dot_org_dependency_data_{$dependency}", $response, 12 * HOUR_IN_SECONDS );
 
 		// Add slug to hook_extra.
 		add_filter( 'upgrader_package_options', array( __CLASS__, 'upgrader_package_options' ), 10, 1 );
