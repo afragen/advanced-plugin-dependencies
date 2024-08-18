@@ -153,7 +153,7 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 	protected static function fetch_non_dotorg_dependency_data( $dependency ) {
 		// Get cached data.
 		$response = get_site_transient( "non_dot_org_dependency_data_{$dependency}" );
-		if ( ! $response ) {
+		if ( $response ) {
 			return $response;
 		}
 
