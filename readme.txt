@@ -6,7 +6,7 @@ License: MIT
 Network: true
 Requires at least: 6.5
 Requires PHP: 8.0
-Tested up to: 6.5
+Tested up to: 6.7
 Stable tag: x.x.x
 
 An add-on the the Plugin Dependencies feature. Adds a Dependencies tab in the plugin install page.  Adds support for non dot org plugin cards.
