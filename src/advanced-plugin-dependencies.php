@@ -164,14 +164,11 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 		 */
 		$rest_endpoints = array_merge( self::$api_endpoints, apply_filters( 'plugin_dependency_endpoints', array() ) );
 
-		foreach ( $rest_endpoints as $slug => $endpoint ) {
-			// Skip if dependency and slug do not match.
-			if ( $dependency !== $slug ) {
-				continue;
-			}
+		// Ensure dependency has REST endpoint.
+		if ( isset( $rest_endpoints[ $dependency ] ) ) {
 
 			// Get local JSON endpoint.
-			$response = wp_remote_get( $endpoint );
+			$response = wp_remote_get( $rest_endpoints[ $dependency ] );
 
 			// Convert response to associative array.
 			$response = json_decode( wp_remote_retrieve_body( $response ), true );
@@ -179,8 +176,8 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 				$message  = isset( $response['error'] ) ? $response['error'] : '';
 				$response = new WP_Error( 'error', 'Error retrieving plugin data.', $message );
 			}
-			if ( ! is_wp_error( $response ) ) {
-				break;
+			if ( is_wp_error( $response ) ) {
+				return $response;
 			}
 		}
 
