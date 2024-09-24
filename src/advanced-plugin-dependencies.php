@@ -138,6 +138,7 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 					$dependency_data['short_description'] = $short_description;
 				}
 			}
+			$dependency_data['download_link']   = sanitize_url( $dependency_data['download_link'] );
 			self::$dependency_api_data[ $slug ] = $dependency_data;
 		}
 		// Set transient for WP_Plugin_Dependencies.
@@ -344,7 +345,7 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 		}
 
 		if ( ! isset( self::$api_endpoints[ $slug ] ) ) {
-			self::$api_endpoints[ $slug ] = $endpoint;
+			self::$api_endpoints[ $slug ] = sanitize_url( $endpoint );
 		}
 
 		return $slug;
