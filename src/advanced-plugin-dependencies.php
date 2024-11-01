@@ -138,8 +138,10 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 					$dependency_data['short_description'] = $short_description;
 				}
 			}
+			$dependency_data['download_link']   = sanitize_url( $dependency_data['download_link'] );
 			self::$dependency_api_data[ $slug ] = $dependency_data;
 		}
+		// Set transient for WP_Plugin_Dependencies.
 		set_site_transient( 'wp_plugin_dependencies_plugin_data', self::$dependency_api_data, 0 );
 	}
 
@@ -150,7 +152,12 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 	 * @return array|\WP_Error
 	 */
 	protected static function fetch_non_dotorg_dependency_data( $dependency ) {
-		$response = array();
+		// Get cached data.
+		$response = get_site_transient( "non_dot_org_dependency_data_{$dependency}" );
+		if ( $response ) {
+			return $response;
+		}
+
 		/**
 		 * Filter the REST enpoints used for lookup of plugins API data.
 		 *
@@ -158,14 +165,11 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 		 */
 		$rest_endpoints = array_merge( self::$api_endpoints, apply_filters( 'plugin_dependency_endpoints', array() ) );
 
-		foreach ( $rest_endpoints as $slug => $endpoint ) {
-			// Skip if dependency and slug do not match.
-			if ( $dependency !== $slug ) {
-				continue;
-			}
+		// Ensure dependency has REST endpoint.
+		if ( isset( $rest_endpoints[ $dependency ] ) ) {
 
 			// Get local JSON endpoint.
-			$response = wp_remote_get( $endpoint );
+			$response = wp_remote_get( $rest_endpoints[ $dependency ] );
 
 			// Convert response to associative array.
 			$response = json_decode( wp_remote_retrieve_body( $response ), true );
@@ -173,10 +177,13 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 				$message  = isset( $response['error'] ) ? $response['error'] : '';
 				$response = new WP_Error( 'error', 'Error retrieving plugin data.', $message );
 			}
-			if ( ! is_wp_error( $response ) ) {
-				break;
+			if ( is_wp_error( $response ) ) {
+				return $response;
 			}
 		}
+
+		// Cache data for 12 hours.
+		set_site_transient( "non_dot_org_dependency_data_{$dependency}", $response, 12 * HOUR_IN_SECONDS );
 
 		// Add slug to hook_extra.
 		add_filter( 'upgrader_package_options', array( __CLASS__, 'upgrader_package_options' ), 10, 1 );
@@ -284,7 +291,7 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 			$file = $dependencies[ $slug ];
 		}
 		$args              = $file ? self::$plugins[ $file ] : $args;
-		$short_description = esc_html__( "You will need to manually install this dependency. Please contact the plugin's developerand ask them to add plugin dependencies support and for information on how to install the this dependency.", 'advanced-plugin-dependencies' );
+		$short_description = esc_html__( "You will need to manually install this dependency. Please contact the plugin's developer and ask them to add plugin dependencies support and for information on how to install this dependency.", 'advanced-plugin-dependencies' );
 		$dependencies      = isset( self::$plugin_dirnames[ $slug ] ) && ! empty( self::$plugins[ self::$plugin_dirnames[ $slug ] ]['RequiresPlugins'] )
 			? self::$plugins[ self::$plugin_dirnames[ $slug ] ]['RequiresPlugins'] : array();
 		$response          = array(
@@ -338,7 +345,7 @@ class Advanced_Plugin_Dependencies extends WP_Plugin_Dependencies {
 		}
 
 		if ( ! isset( self::$api_endpoints[ $slug ] ) ) {
-			self::$api_endpoints[ $slug ] = $endpoint;
+			self::$api_endpoints[ $slug ] = sanitize_url( $endpoint );
 		}
 
 		return $slug;

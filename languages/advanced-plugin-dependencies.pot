@@ -1,32 +1,36 @@
-# Copyright (C) 2023 Andy Fragen, Colin Stewart, Paul Biron
+# Copyright (C) 2024 Andy Fragen, Colin Stewart, Paul Biron
 # This file is distributed under the MIT.
 msgid ""
 msgstr ""
-"Project-Id-Version: Advanced Plugin Dependencies 0.2.0\n"
+"Project-Id-Version: Advanced Plugin Dependencies 0.9.4\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/advanced-plugin-dependencies\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2023-08-11T03:00:52+00:00\n"
+"POT-Creation-Date: 2024-09-24T03:14:19+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"X-Generator: WP-CLI 2.8.1\n"
+"X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: advanced-plugin-dependencies\n"
 
 #. Plugin Name of the plugin
+#: plugin.php
 msgid "Advanced Plugin Dependencies"
 msgstr ""
 
 #. Plugin URI of the plugin
+#: plugin.php
 msgid "https://wordpress.org/plugins/advanced-plugin-dependencies"
 msgstr ""
 
 #. Description of the plugin
-msgid "Add plugin install dependencies tab, support for non dot org plugins, and information about dependencies."
+#: plugin.php
+msgid "Add plugin install dependencies tab, support for non dot org plugin cards, and information about dependencies."
 msgstr ""
 
 #. Author of the plugin
+#: plugin.php
 msgid "Andy Fragen, Colin Stewart, Paul Biron"
 msgstr ""
 
@@ -34,53 +38,27 @@ msgstr ""
 msgid "These suggestions are based on dependencies required by installed plugins."
 msgstr ""
 
-#: src/advanced-plugin-dependencies.php:168
-msgid "Cannot activate due to unmet dependency"
-msgstr ""
-
-#: src/advanced-plugin-dependencies.php:199
-msgid "Required by:"
-msgstr ""
-
-#. translators: 1: plugin names, 2: link to Dependencies install page
-#: src/advanced-plugin-dependencies.php:264
-msgid "%1$s plugin(s) have been deactivated. There are uninstalled or inactive dependencies. Go to the %2$s install page."
-msgstr ""
-
-#: src/advanced-plugin-dependencies.php:275
-msgid "There are additional plugin dependencies that must be installed."
-msgstr ""
-
-#. translators: 1: link to Dependencies install page
-#: src/advanced-plugin-dependencies.php:283
-msgid "Go to the %s install page."
-msgstr ""
-
-#. translators: circular dependencies names
-#: src/advanced-plugin-dependencies.php:299
-msgid "You have circular dependencies with the following plugins: %s"
-msgstr ""
-
-#: src/advanced-plugin-dependencies.php:300
-msgid "Please contact the plugin developers and make them aware."
-msgstr ""
-
-#: src/advanced-plugin-dependencies.php:316
-msgid "Dependencies"
-msgstr ""
-
-#: src/advanced-plugin-dependencies.php:316
-msgid "Manage Dependencies"
-msgstr ""
-
-#: src/advanced-plugin-dependencies.php:318
-msgid "Go to Dependencies tab of Add Plugins page."
-msgstr ""
-
-#: src/advanced-plugin-dependencies.php:350
+#: src/advanced-plugin-dependencies.php:119
 msgid "You will need to manually install this dependency. Please contact the plugin's developer and ask them to add plugin dependencies support and for information on how to install the this dependency."
 msgstr ""
 
-#: src/advanced-plugin-dependencies.php:362
+#. translators: s: link to Dependencies install page
+#: src/advanced-plugin-dependencies.php:241
+msgid "Go to the %s install page."
+msgstr ""
+
+#: src/advanced-plugin-dependencies.php:256
+msgid "Go to Dependencies tab of Add Plugins page."
+msgstr ""
+
+#: src/advanced-plugin-dependencies.php:257
+msgid "Dependencies"
+msgstr ""
+
+#: src/advanced-plugin-dependencies.php:294
+msgid "You will need to manually install this dependency. Please contact the plugin's developer and ask them to add plugin dependencies support and for information on how to install this dependency."
+msgstr ""
+
+#: src/advanced-plugin-dependencies.php:310
 msgid "Ask the plugin developer where to download and install this plugin dependency."
 msgstr ""
