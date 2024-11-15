@@ -29,7 +29,7 @@
   },
   "scripts": {
     "make-pot": [
-      "wp i18n make-pot . languages/advanced-plugin-dependencies.pot"
+      "wp i18n make-pot --headers='{\"Report-Msgid-Bugs-To\":\"https://github.com/afragen/advanced-plugin-dependencies/issues\"}' . languages/advanced-plugin-dependencies.pot"
     ],
     "wpcs": [
       "vendor/bin/phpcbf .; vendor/bin/phpcs ."
