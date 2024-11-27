@@ -13,7 +13,7 @@
  * Plugin URI:  https://wordpress.org/plugins/advanced-plugin-dependencies
  * Description:  Add plugin install dependencies tab, support for non dot org plugin cards, and information about dependencies.
  * Author: Andy Fragen, Colin Stewart, Paul Biron
- * Version: 0.9.5
+ * Version: 0.9.5.1
  * License: MIT
  * Text Domain: advanced-plugin-dependencies
  * Network: true
@@ -93,7 +93,7 @@ class Init {
 }
 
 add_action(
-	'plugins_loaded',
+	'init',
 	function () {
 		new Init();
 	}
