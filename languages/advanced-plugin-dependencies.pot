@@ -2,14 +2,14 @@
 # This file is distributed under the MIT.
 msgid ""
 msgstr ""
-"Project-Id-Version: Advanced Plugin Dependencies 0.9.4\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/advanced-plugin-dependencies\n"
+"Project-Id-Version: Advanced Plugin Dependencies 0.9.5\n"
+"Report-Msgid-Bugs-To: https://github.com/afragen/advanced-plugin-dependencies/issues\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2024-09-24T03:14:19+00:00\n"
+"POT-Creation-Date: 2024-11-15T15:51:33+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.11.0\n"
 "X-Domain: advanced-plugin-dependencies\n"
@@ -34,12 +34,21 @@ msgstr ""
 msgid "Andy Fragen, Colin Stewart, Paul Biron"
 msgstr ""
 
-#: plugin.php:58
+#: plugin.php:59
 msgid "These suggestions are based on dependencies required by installed plugins."
+msgstr ""
+
+#: plugin.php:72
+msgctxt "Plugin Installer"
+msgid "Dependencies"
 msgstr ""
 
 #: src/advanced-plugin-dependencies.php:119
 msgid "You will need to manually install this dependency. Please contact the plugin's developer and ask them to add plugin dependencies support and for information on how to install the this dependency."
+msgstr ""
+
+#: src/advanced-plugin-dependencies.php:238
+msgid "Some required plugins are missing or inactive."
 msgstr ""
 
 #. translators: s: link to Dependencies install page
