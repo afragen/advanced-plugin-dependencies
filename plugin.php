@@ -18,7 +18,7 @@
  * Text Domain: advanced-plugin-dependencies
  * Network: true
  * Requires at least: 6.5
- * Requires PHP: 8.0
+ * Requires PHP: 7.4
  * GitHub Plugin URI: https://github.com/afragen/advanced-plugin-dependencies
  * Primary Branch: main
  */
