@@ -15,7 +15,7 @@ class Tests_Admin_AdvancedPluginDependencies extends WP_UnitTestCase {
 	 */
 	private function make_prop_accessible( $obj_or_class, $prop ) {
 		$property = new ReflectionProperty( $obj_or_class, $prop );
-		$property->setAccessible( true );
+		( PHP_VERSION_ID < 80100 ) && $property->setAccessible( true );
 		return $property;
 	}
 
@@ -28,7 +28,7 @@ class Tests_Admin_AdvancedPluginDependencies extends WP_UnitTestCase {
 	 */
 	private function make_method_accessible( $obj_or_class, $method ) {
 		$method = new ReflectionMethod( $obj_or_class, $method );
-		$method->setAccessible( true );
+		( PHP_VERSION_ID < 80100 ) && $method->setAccessible( true );
 		return $method;
 	}
 
